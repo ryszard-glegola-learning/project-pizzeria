@@ -68,7 +68,7 @@ dataSource.products = {
         },
       },
       crust: {
-        label: 'pizza crust',
+        label: 'Pizza crust',
         type: 'select',
         options: {
           standard: {label: 'standard', price: 0, default: true},
