@@ -94,7 +94,7 @@
       thisProduct.renderInMenu();
       thisProduct.initAccordion();
 
-      console.log('New Product: ', thisProduct);
+      // console.log('New Product: ', thisProduct);
     }
 
     renderInMenu(){
@@ -120,31 +120,30 @@
 
       /* find the clickable trigger (the element that should react to clicking) */
       thisProduct.trigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      // console.log('thisProduct.trigger:', thisProduct.trigger);
       /* START: click event listener to trigger */
       thisProduct.trigger.addEventListener('click', function(){
-        /* prevent default action for event */
-        event.preventDefault(); // co to robi i dlaczego tutaj dziala?
-        /* toggle active class on element of thisProduct */
+        /* [DONE] prevent default action for event */
+        event.preventDefault(); // what does this do?
+        /* [DONE] toggle active class on element of thisProduct */
         thisProduct.trigger.classList.toggle('active'); // This may be needed later, not useful here
-        console.log('thisProduct.trigger classes:', thisProduct.trigger.classList);
         thisProduct.trigger.parentElement.classList.toggle('active');
-        console.log('thisProduct.trigger parentElement classes:', thisProduct.trigger.parentElement.classList);
+        /* [DONE] find all active products */
+        const allActiveProducts = document.querySelectorAll(select.all.menuProductsActive);
+        /*  [DONE] START LOOP: for each active product */
+        for(let activeProduct of allActiveProducts){
+          activeProduct.header = activeProduct.querySelector(select.menuProduct.clickable);
+          /*  [DONE] START: ### if the active product isn't the element of thisProduct */
+          if (activeProduct.header != thisProduct.trigger) {
+          /*     remove class active for the active product */
+            activeProduct.header.parentElement.classList.remove('active');
+          /*  [DONE] END: ### if the active product isn't the element of thisProduct */
+          }
+          /* [DONE] END LOOP: for each active product */
+        }
+        console.log(' ** END LISTENER ** ');
       });
-
-      /* find all active products */
-
-      /*  START LOOP: for each active product */
-
-      /*   START: ### if the active product isn't the element of thisProduct */
-
-      /*     remove class active for the active product */
-
-      /*   END: ### if the active product isn't the element of thisProduct */
-
-      /* END LOOP: for each active product */
-
-      /* END: click event listener to trigger */
-
+      /* [DONE] END: click event listener to trigger */
     }
   }
 
