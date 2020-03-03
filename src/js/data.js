@@ -23,10 +23,10 @@ dataSource.products = {
         label: 'Coffee type',
         type: 'radios',
         options: {
-          latte: {label: 'Latte', price: 1, default: true},
+          espresso: {label: 'Espresso', price: 0, default: true},
+          latte: {label: 'Latte', price: 1},
           cappuccino: {label: 'Cappuccino', price: 1},
-          espresso: {label: 'Espresso', price: 1},
-          macchiato : {label: 'Macchiato ', price: 1},
+          macchiato: {label: 'Macchiato ', price: 1},
         },
       },
     },

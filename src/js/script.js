@@ -92,7 +92,10 @@
       thisProduct.data = data;
 
       thisProduct.renderInMenu();
+      thisProduct.getElements();
       thisProduct.initAccordion();
+      thisProduct.initOrderForm();
+      thisProduct.processOrder();
 
       // console.log('New Product: ', thisProduct);
     }
@@ -111,39 +114,137 @@
 
       /* add DOM element to menu */
       menuContainer.appendChild(thisProduct.element);
+      console.log('thisProduct.element',thisProduct.element);
+    }
+
+    getElements(){
+      const thisProduct = this;
+
+      thisProduct.accordionTrigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      thisProduct.form = thisProduct.element.querySelector(select.menuProduct.form);
+      thisProduct.formInputs = thisProduct.element.querySelectorAll(select.all.formInputs);
+      thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
+      thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
     }
 
 
     initAccordion(){
       const thisProduct = this;
-      console.log('thisProduct:', thisProduct);
 
-      /* find the clickable trigger (the element that should react to clicking) */
-      thisProduct.trigger = thisProduct.element.querySelector(select.menuProduct.clickable);
+      /* [DONE] find the clickable trigger (the element that should react to clicking) */
+      /* [UPDATED IM 8.5] No longer needed after getElements() was added: */
+      // thisProduct.trigger = thisProduct.element.querySelector(select.menuProduct.clickable);
       // console.log('thisProduct.trigger:', thisProduct.trigger);
       /* START: click event listener to trigger */
-      thisProduct.trigger.addEventListener('click', function(){
+      thisProduct.accordionTrigger.addEventListener('click', function(){
         /* [DONE] prevent default action for event */
         event.preventDefault(); // what does this do?
         /* [DONE] toggle active class on element of thisProduct */
-        thisProduct.trigger.classList.toggle('active'); // This may be needed later, not useful here
-        thisProduct.trigger.parentElement.classList.toggle('active');
+        thisProduct.accordionTrigger.classList.toggle('active'); // This may be needed later, not useful here
+        thisProduct.accordionTrigger.parentElement.classList.toggle('active');
         /* [DONE] find all active products */
         const allActiveProducts = document.querySelectorAll(select.all.menuProductsActive);
         /*  [DONE] START LOOP: for each active product */
         for(let activeProduct of allActiveProducts){
           activeProduct.header = activeProduct.querySelector(select.menuProduct.clickable);
           /*  [DONE] START: ### if the active product isn't the element of thisProduct */
-          if (activeProduct.header != thisProduct.trigger) {
+          if (activeProduct.header != thisProduct.accordionTrigger) {
           /*     remove class active for the active product */
             activeProduct.header.parentElement.classList.remove('active');
           /*  [DONE] END: ### if the active product isn't the element of thisProduct */
           }
           /* [DONE] END LOOP: for each active product */
         }
-        console.log(' ** END LISTENER ** ');
+        // console.log(' ** END LISTENER ** ');
       });
       /* [DONE] END: click event listener to trigger */
+    }
+
+
+    initOrderForm(){
+      const thisProduct = this;
+      // console.log('initOrderForm ran!');
+      thisProduct.form.addEventListener('submit', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+
+      for(let input of thisProduct.formInputs){
+        input.addEventListener('change', function(){
+          thisProduct.processOrder();
+        });
+      }
+
+      thisProduct.cartButton.addEventListener('click', function(event){
+        event.preventDefault();
+        thisProduct.processOrder();
+      });
+    }
+
+    processOrder(){
+      const thisProduct = this;
+      console.log(' ');
+      console.log(' ');
+      console.log(' ##### ANOTHER PROD. #####');
+      console.log('thisProduct is', thisProduct.id);
+      console.log('processOrder ran in ' + thisProduct.id + ':');
+      // console.log('thisProduct.data:',thisProduct.data);
+
+      /* read all data from the form (using utils.serializeFormToObject) and save it to const formData */
+      const formData = utils.serializeFormToObject(thisProduct.form);
+      console.log('formData:', formData);
+
+      /* set variable price to equal thisProduct.data.price */
+      let price = thisProduct.data.price;
+      console.log('price:', price);
+
+      /* START LOOP: for each paramId in thisProduct.data.params */
+      for (let paramId in thisProduct.data.params){
+      /* save the element in thisProduct.data.params with key paramId as const param */
+        const param = thisProduct.data.params[paramId];
+
+        /* START LOOP: for each optionId in param.options */
+        for (let optionId in param.options){
+          console.log(' - - - ');
+          console.log('paramId:',paramId);
+          /* save the element in param.options with key optionId as const option */
+          const option = optionId;
+          console.log('optionId:',option);
+
+          /* change the value of options[option].default to false where it is undefined */
+          if (!param.options[option].default) {
+            param.options[option].default = false;
+          }
+
+          // Tip no. 3 follows...
+
+          const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
+
+          //  console.log('optionSelected:',optionSelected); //
+
+          /* START IF: if option is selected and option is not default */
+          if(optionSelected && !option.default){
+
+            // end of Tip no. 3.
+            /* add price of option to variable price */
+            price = price + param.options[option].price;
+            /* END IF: if option is selected and option is not default */
+            /* START ELSE IF: if option is not selected and option is default */
+          } else if (!optionSelected && option.default) {
+            /* deduct price of option from price */
+            price = price - param.options[option].price;
+          /* END ELSE IF: if  option is not selected and option is default */
+          }
+
+        /* END LOOP: for each optionId in param.options */
+        }
+
+      /* END LOOP: for each paramId in thisProduct.data.params */
+      }
+      /* set the contents of thisProduct.priceElem to be the value of variable price */
+      thisProduct.priceElem = price;
+
+      thisProduct.element.querySelector(select.menuProduct.priceElem).innerHTML= thisProduct.priceElem;
     }
   }
 
