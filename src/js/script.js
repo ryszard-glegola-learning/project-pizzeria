@@ -125,16 +125,14 @@
       thisProduct.formInputs = thisProduct.element.querySelectorAll(select.all.formInputs);
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }
 
 
     initAccordion(){
       const thisProduct = this;
 
-      /* [DONE] find the clickable trigger (the element that should react to clicking) */
-      /* [UPDATED IM 8.5] No longer needed after getElements() was added: */
-      // thisProduct.trigger = thisProduct.element.querySelector(select.menuProduct.clickable);
-      // console.log('thisProduct.trigger:', thisProduct.trigger);
+
       /* START: click event listener to trigger */
       thisProduct.accordionTrigger.addEventListener('click', function(){
         /* [DONE] prevent default action for event */
@@ -220,11 +218,13 @@
 
           const optionSelected = formData.hasOwnProperty(paramId) && formData[paramId].indexOf(optionId) > -1;
 
-          //  console.log('optionSelected:',optionSelected); //
+          // console.log('optionSelected:',optionSelected);
+          /* create const to store a list of images: .parameter-option */
+          const allImagesOfThisProduct = thisProduct.element.querySelector(select.menuProduct.imageWrapper).querySelectorAll('img');
+          console.log('allImagesOfThisProduct',allImagesOfThisProduct);
 
           /* START IF: if option is selected and option is not default */
           if(optionSelected && !option.default){
-
             // end of Tip no. 3.
             /* add price of option to variable price */
             price = price + param.options[option].price;
@@ -236,6 +236,45 @@
           /* END ELSE IF: if  option is not selected and option is default */
           }
 
+          /* Image handling part */
+          const wantedImageClass = paramId + '-' + optionId;
+          console.log('wantedImageClass:',wantedImageClass);
+
+          if(optionSelected){
+            /* go through allImagesOfThisProduct */
+            for(let image of allImagesOfThisProduct){
+              /* if the image belongs to the selected option, show it */
+              const currentImageClass = image.getAttribute('class');
+              console.log('image:',image);
+              console.log('currentImageClass:',currentImageClass);
+              if (currentImageClass.includes(wantedImageClass)) {
+                image.classList.add('active');
+              }
+            }
+          } else {
+            /* go through allImagesOfThisProduct */
+            for(let image of allImagesOfThisProduct){
+              /* if the image belongs to the selected option, show it */
+              const currentImageClass = image.getAttribute('class');
+              console.log('image:',image);
+              console.log('currentImageClass:',currentImageClass);
+
+              /* split class list into array */
+              const currentImageClassesArray = currentImageClass.split(' ');
+              let thisTheClass = false;
+              for(let className of currentImageClassesArray){
+                if(className == wantedImageClass){
+                  thisTheClass = true;
+                }
+              }
+              console.log('image.classList',image.classList);
+              if (thisTheClass) {
+                image.classList.remove('active');
+              }
+            }
+          }
+
+        /* end of Image handling*/
         /* END LOOP: for each optionId in param.options */
         }
 
