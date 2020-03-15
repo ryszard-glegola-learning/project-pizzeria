@@ -6,6 +6,7 @@
   const select = {
     templateOf: {
       menuProduct: '#template-menu-product',
+      cartProduct: '#template-cart-product',
     },
     containerOf: {
       menu: '#product-list',
@@ -26,10 +27,28 @@
     },
     widgets: {
       amount: {
-        input: 'input[name="amount"]',
+      input: 'input.amount',
         linkDecrease: 'a[href="#less"]',
         linkIncrease: 'a[href="#more"]',
       },
+    },
+    cart: {
+      productList: '.cart__order-summary',
+      toggleTrigger: '.cart__summary',
+      totalNumber: `.cart__total-number`,
+      totalPrice: '.cart__total-price strong, .cart__order-total .cart__order-price-sum strong',
+      subtotalPrice: '.cart__order-subtotal .cart__order-price-sum strong',
+      deliveryFee: '.cart__order-delivery .cart__order-price-sum strong',
+      form: '.cart__order',
+      formSubmit: '.cart__order [type="submit"]',
+      phone: '[name="phone"]',
+      address: '[name="address"]',
+    },
+    cartProduct: {
+      amountWidget: '.widget-amount',
+      price: '.cart__product-price',
+      edit: '[href="#edit"]',
+      remove: '[href="#remove"]',
     },
   };
 
@@ -38,6 +57,9 @@
       wrapperActive: 'active',
       imageVisible: 'active',
     },
+    cart: {
+      wrapperActive: 'active',
+    },
   };
 
   const settings = {
@@ -45,11 +67,15 @@
       defaultValue: 1,  // has to be between 1 and 9 or widget doesn't work
       defaultMin: 1,
       defaultMax: 9,
-    }
+    },
+    cart: {
+    defaultDeliveryFee: 20,
+    },
   };
 
   const templates = {
     menuProduct: Handlebars.compile(document.querySelector(select.templateOf.menuProduct).innerHTML),
+    cartProduct: Handlebars.compile(document.querySelector(select.templateOf.cartProduct).innerHTML),
   };
 
 
@@ -62,8 +88,8 @@
       thisWidget.setValue(thisWidget.input.value);
       thisWidget.initActions();  // Sam to tu dopisalem, w lekcji nie bylo o konieecznosci dopisania tego tu ani slowa
 
-      console.log('AmountWidget:',thisWidget);
-      console.log('constructor arguments:',element);
+      // console.log('AmountWidget:',thisWidget);
+      // console.log('constructor arguments:',element);
     }
 
     getElements(element){
@@ -103,10 +129,7 @@
           (newValue <= settings.amountWidget.defaultMax)){
         thisWidget.value = newValue;
         thisWidget.announce();
-        // console.log('Warunek spełniony');
-      } /* else {
-        console.log('Warunek NIEspełniony');
-      } */
+      }
 
       thisWidget.input.value = thisWidget.value;
       // console.log('Qty set to: ' + thisWidget.value);
@@ -115,7 +138,7 @@
     initActions(){
       const thisWidget = this;
 
-      console.log('Event listeners added.');
+      // console.log('Event listeners added.');
       thisWidget.input.addEventListener('change', function(event){ // eslint-disable-line no-unused-vars
         thisWidget.setValue(thisWidget.input.value);
       });
@@ -155,11 +178,13 @@
 
     init: function(){
       const thisApp = this;
+
+      console.log(' ');
       console.log('*** App starting ***');
-      console.log('thisApp:', thisApp);
-      console.log('classNames:', classNames);
-      console.log('settings:', settings);
-      console.log('templates:', templates);
+      // console.log('thisApp:', thisApp);
+      // console.log('classNames:', classNames);
+      // console.log('settings:', settings);
+      // console.log('templates:', templates);
 
       thisApp.initData();
       thisApp.initMenu();
@@ -181,7 +206,7 @@
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log('..for product: ', thisProduct);
+      console.log('..for prod.:',thisProduct.id);
     }
 
     renderInMenu(){
