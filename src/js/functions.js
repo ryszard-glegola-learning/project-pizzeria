@@ -31,7 +31,7 @@ utils.serializeFormToObject = function(form){
           output[field.name].push(field.value);
         }
       }
-      console.log('field.checked: '+ field.name + ', '+ field.checked);
+      // console.log('field.checked: '+ field.name + ', '+ field.checked);
     }
   }
   return output;
