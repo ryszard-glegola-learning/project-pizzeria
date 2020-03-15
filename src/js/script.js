@@ -1,5 +1,4 @@
 /* global Handlebars, utils, dataSource */
-// eslint-disable-line no-unused-vars
 
 {
   'use strict';
@@ -43,7 +42,7 @@
 
   const settings = {
     amountWidget: {
-      defaultValue: 1,
+      defaultValue: 1,  // has to be between 1 and 9 or widget doesn't work
       defaultMin: 1,
       defaultMax: 9,
     }
@@ -59,8 +58,10 @@
       const thisWidget = this;
 
       thisWidget.getElements(element);
+      thisWidget.value = settings.amountWidget.defaultValue;
       thisWidget.setValue(thisWidget.input.value);
-      thisWidget.initActions();
+      thisWidget.initActions();  // Sam to tu dopisalem, w lekcji nie bylo o konieecznosci dopisania tego tu ani slowa
+
       console.log('AmountWidget:',thisWidget);
       console.log('constructor arguments:',element);
     }
@@ -74,36 +75,61 @@
       thisWidget.linkIncrease = thisWidget.element.querySelector(select.widgets.amount.linkIncrease);
     }
 
+    announce(){
+      const thisWidget = this;
+
+      const event = new Event ('updated');
+      thisWidget.element.dispatchEvent(event);
+    }
+
     setValue(value){
       const thisWidget = this;
 
       const newValue = parseInt(value);
+      const currentValue = parseInt(thisWidget.input.value); // converts inpit to integer
 
-      /* TODO: Add validation here */
+      /* Validation here */
 
-      thisWidget.value = newValue;
+      // console.log(' ------------ ');
+      // console.log('value:',value);
+      // console.log('thisWidget.input.value:',thisWidget.input.value);
+      // console.log('currentValue:',currentValue);
+      // console.log('newValue:',newValue);
+      // console.log('defaultMin:',settings.amountWidget.defaultMin);
+      // console.log('defaultMax:',settings.amountWidget.defaultMax);
+
+      if ((newValue != currentValue) &&
+          (newValue >= settings.amountWidget.defaultMin) &&
+          (newValue <= settings.amountWidget.defaultMax)){
+        thisWidget.value = newValue;
+        thisWidget.announce();
+        // console.log('Warunek spełniony');
+      } /* else {
+        console.log('Warunek NIEspełniony');
+      } */
+
       thisWidget.input.value = thisWidget.value;
-      console.log('Value set:',thisWidget.value);
+      // console.log('Qty set to: ' + thisWidget.value);
     }
 
     initActions(){
       const thisWidget = this;
 
       console.log('Event listeners added.');
-      thisWidget.input.addEventListener('change', function(event){
+      thisWidget.input.addEventListener('change', function(event){ // eslint-disable-line no-unused-vars
         thisWidget.setValue(thisWidget.input.value);
       });
 
       thisWidget.linkDecrease.addEventListener('click', function(event){
         event.preventDefault();
         thisWidget.setValue(thisWidget.value - 1);
-        console.log('Quantity decreased!');
+        // console.log('Quantity decreased!');
       });
 
       thisWidget.linkIncrease.addEventListener('click', function(event){
         event.preventDefault();
         thisWidget.setValue(thisWidget.value + 1);
-        console.log('Quantity increased!');
+        // console.log('Quantity increased!');
       });
     }
   }
@@ -155,7 +181,7 @@
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log('..for product: ', thisProduct.id);
+      console.log('..for product: ', thisProduct);
     }
 
     renderInMenu(){
@@ -334,6 +360,9 @@
 
       /* END LOOP: for each paramId in thisProduct.data.params */
       }
+
+      /* multiply price by quantity */
+      price *= thisProduct.amountWidget.value;
       /* set the contents of thisProduct.priceElem to be the value of variable price */
       thisProduct.priceElem = price;
 
@@ -344,6 +373,10 @@
       const thisProduct = this;
 
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+      thisProduct.amountWidgetElem.addEventListener('updated', function(){
+        thisProduct.processOrder();
+        // console.log('initAmountWidget ran.');
+      });
     }
   }
 

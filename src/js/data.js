@@ -4,7 +4,7 @@ dataSource.products = {
   cake: {
     class: 'small',
     name: 'Zio Stefano\'s Doughnut',
-    price: 9,
+    price: 3.50,
     description: 'Treat yourself with this soft, freshly baked cookie. The recipe has been handed down from generation to generation in our family and it has won us several first place prizes in local competitions.',
     images: [
       '<img class="active" src="images/doughnut.svg">',
@@ -13,7 +13,7 @@ dataSource.products = {
   breakfast: {
     class: 'small',
     name: 'Zia Giulia\'s Breakfast',
-    price: 9,
+    price: 5,
     description: 'There\'s no better way to start your day than indulging yourself with a cup of fresh Italian coffee and crispy waffels. Made just for you on the spot, this breakfast combo has been our guests\' favorite for over 50 years.',
     images: [
       '<img class="active" src="images/breakfast.svg">',
@@ -45,6 +45,10 @@ dataSource.products = {
       '<img class="toppings-greenPeppers" src="images/pizza/green-peppers.svg">',
       '<img class="toppings-mushrooms" src="images/pizza/mushrooms.svg">',
       '<img class="toppings-basil" src="images/pizza/basil.svg">',
+      '<img class="toppings-corn" src="images/pizza/corn.svg">',
+      '<img class="toppings-pineapple" src="images/pizza/pineapple.svg">',
+      '<img class="toppings-bacon" src="images/pizza/bacon.svg">',
+      '<img class="toppings-pepper" src="images/pizza/black-pepper.svg">',
     ],
     params: {
       sauce: {
@@ -60,11 +64,15 @@ dataSource.products = {
         type: 'checkboxes',
         options: {
           olives: {label: 'Olives', price: 2, default: true},
-          redPeppers: {label: 'Red peppers', price: 2, default: true},
-          greenPeppers: {label: 'Green peppers', price: 2, default: true},
+          redPeppers: {label: 'Red peppers', price: 2},
+          greenPeppers: {label: 'Green peppers', price: 2},
           mushrooms: {label: 'Mushrooms', price: 2, default: true},
           basil: {label: 'Fresh basil', price: 2, default: true},
           salami: {label: 'Salami', price: 3},
+          corn: {label: 'Corn', price: 1},
+          pineapple: {label: 'Pineapple', price: 2},
+          bacon: {label: 'Bacon', price: 3},
+          pepper: {label: 'Black pepper', price: 1},
         },
       },
       crust: {
