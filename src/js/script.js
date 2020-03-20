@@ -52,7 +52,7 @@
     },
   };
 
-  const classNames = {  // eslint-disable-line no-unused-vars
+  const classNames = {
     menuProduct: {
       wrapperActive: 'active',
       imageVisible: 'active',
@@ -378,7 +378,7 @@
       const thisCart = this;
       thisCart.products = [];
       thisCart.getElements(element);
-
+      thisCart.initActions();
       console.log('new Cart:',thisCart);
       // console.log('cart wrapper:',thisCart.dom.wrapper);
     }
@@ -387,6 +387,16 @@
       const thisCart = this;
       thisCart.dom = {};
       thisCart.dom.wrapper = element;
+      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+    }
+
+    initActions(){
+      const thisCart = this;
+      // console.log('thisCart.dom.toggleTrigger:',thisCart.dom.toggleTrigger);
+      thisCart.dom.toggleTrigger.addEventListener('click',function(){
+        thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
+        // console.log('Cart clicked!',thisCart.dom.wrapper.classList);
+      });
     }
   }
 
