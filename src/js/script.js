@@ -171,6 +171,7 @@
       thisProduct.cartButton.addEventListener('click', function(event){
         event.preventDefault();
         thisProduct.processOrder();
+        thisProduct.addToCart();
       });
     }
     
@@ -187,6 +188,7 @@
       const formData = utils.serializeFormToObject(thisProduct.form);
       // console.log('formData:', formData);
       
+      thisProduct.params = {};
       /* set variable price to equal thisProduct.data.price */
       let price = thisProduct.data.price;
       // console.log('price:', price);
@@ -233,16 +235,27 @@
           /* Image handling part */
           const wantedImageClass = paramId + '-' + optionId;
           // console.log('wantedImageClass:',wantedImageClass);
-          
+          console.log('option:',option);
+          console.log('optionId:',optionId);
           if(optionSelected){
             /* go through allImagesOfThisProduct */
+            /* NEW code: Cart support */
+            if(!thisProduct.params[paramId]){
+              thisProduct.params[paramId] = {
+                label: param.label,
+                options: {},
+              }; 
+            }; // eslint-disable-line no-extra-semi
+            
+            thisProduct.params[paramId].options[optionId] = param.options[option].label; // my fix, bootcamp instructed right side of assignment to be option.label - but it returned 'undefined'
+            /* NEW ends here */
             for(let image of allImagesOfThisProduct){
               /* if the image belongs to the selected option, show it */
               const currentImageClass = image.getAttribute('class');
               // console.log('image:',image);
               // console.log('currentImageClass:',currentImageClass);
               if (currentImageClass.includes(wantedImageClass)) {
-                image.classList.add('active');
+                image.classList.add(classNames.menuProduct.imageVisible);
               }
             }
           } else {
@@ -276,11 +289,14 @@
       }
       
       /* multiply price by quantity */
-      price *= thisProduct.amountWidget.value;
+      thisProduct.priceSingle = price;
+      thisProduct.price = thisProduct.priceSingle * thisProduct.amountWidget.value;
       /* set the contents of thisProduct.priceElem to be the value of variable price */
-      thisProduct.priceElem = price;
-      
+      thisProduct.priceElem = thisProduct.price;
+      // console.log('thisProduct.priceElem.innerHTML:',thisProduct.priceElem.innerHTML);
+      // console.log('thisProduct.priceElem',thisProduct.priceElem);
       thisProduct.element.querySelector(select.menuProduct.priceElem).innerHTML= thisProduct.priceElem;
+      console.log('thisProduct.params:',thisProduct.params);
     }
   
     initAmountWidget() {
@@ -292,6 +308,21 @@
         // console.log('initAmountWidget ran.');
       });
     }
+
+    addToCart(){
+      const thisProduct = this;
+
+      thisProduct.name = thisProduct.data.name;
+      thisProduct.quantity = thisProduct.amountWidget.value; // In the BOOTCAMP this property is called thisProduct.amount
+
+      app.cart.add(thisProduct);
+      /* BOOTCAMP: ta metoda przekazuje całą instancję produktu jako argument metody app.cart.add. W app.cart zapisaliśmy instancję klasy Cart:   
+      thisApp.cart = new Cart(cartElem);
+      dlatego tu w ten sposób odwołujemy się do jej metody add, którą zapisaliśmy w klasie Cart jako add(menuProduct). Metoda add otrzyma więc odwołanie do instancji produktu, dzięki czemu będzie mogła odczytywać jej właściwości i wykonywać jej metody. W metodzie add ta instancja produktu będzie dostępna jako menuProduct. */
+
+      console.log('Product:',thisProduct);
+    
+    }
   }
 
   class AmountWidget{
@@ -301,7 +332,7 @@
       thisWidget.getElements(element);
       thisWidget.value = settings.amountWidget.defaultValue;
       thisWidget.setValue(thisWidget.input.value);
-      thisWidget.initActions();  // Sam to tu dopisalem, w lekcji nie bylo o konieecznosci dopisania tego tu ani slowa
+      thisWidget.initActions(); 
       
       // console.log('AmountWidget:',thisWidget);
       // console.log('constructor arguments:',element);
@@ -388,6 +419,8 @@
       thisCart.dom = {};
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
+      thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
+      console.log('thisCart.dom.productList:',thisCart.dom.productList);
     }
 
     initActions(){
@@ -397,6 +430,22 @@
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
         // console.log('Cart clicked!',thisCart.dom.wrapper.classList);
       });
+    }
+
+    add(menuProduct){
+      const thisCart = this;  // eslint-disable-line no-unused-vars
+      console.log('Adding product:',menuProduct);
+
+      /* NEW - CART: 1. generate HTML based on template */
+      const generatedHTML = templates.cartProduct(menuProduct); 
+      // console.log('Cart generatedHTML',generatedHTML);
+
+      /* NEW - CART: 2. create DOM elementS (using utils.createElementFromHTML?) and save to generatedDOM */
+      thisCart.generatedDOM = utils.createDOMFromHTML(generatedHTML);
+      // console.log('generatedDOM',thisCart.generatedDOM);
+
+      /* NEW - CART: add these DOM elements to thisCart.dom.productList */
+      thisCart.dom.productList.appendChild(thisCart.generatedDOM);
     }
   }
 
