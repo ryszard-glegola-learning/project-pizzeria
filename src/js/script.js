@@ -94,8 +94,8 @@
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log('[+] Product created:',thisProduct.id);
-      console.log('...details:',thisProduct);
+      // console.log('[+] Product created:',thisProduct.id);
+      // console.log('...details:',thisProduct);
     }
 
     renderInMenu(){
@@ -300,10 +300,10 @@
     initAmountWidget() {
       const thisProduct = this;
 
-      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem,thisProduct.quantity);
       thisProduct.amountWidgetElem.addEventListener('updated', function(){
         thisProduct.processOrder();
-        // console.log('initAmountWidget ran.');
+        // console.log('initAmountWidget in Prod. ran.');
       });
     }
 
@@ -311,33 +311,42 @@
       const thisProduct = this;
 
       thisProduct.name = thisProduct.data.name;
-      thisProduct.quantity = thisProduct.amountWidget.value; // In the BOOTCAMP this property is called thisProduct.amount
+      thisProduct.quantity = thisProduct.amountWidget.value; 
+      // In the BOOTCAMP this property is called thisProduct.amount
 
       app.cart.add(thisProduct);
       /* BOOTCAMP: ta metoda przekazuje całą instancję produktu jako argument metody app.cart.add. W app.cart zapisaliśmy instancję klasy Cart:   
       thisApp.cart = new Cart(cartElem);
       dlatego tu w ten sposób odwołujemy się do jej metody add, którą zapisaliśmy w klasie Cart jako add(menuProduct). Metoda add otrzyma więc odwołanie do instancji produktu, dzięki czemu będzie mogła odczytywać jej właściwości i wykonywać jej metody. W metodzie add ta instancja produktu będzie dostępna jako menuProduct. */
 
-      console.log(' ...details:',thisProduct);
+      // console.log(' ...details:',thisProduct);
     
     }
   }
 
   class AmountWidget{
-    constructor(element){
+    constructor(element,initQuantity = null){ // I can pass initQuantity optionally
       const thisWidget = this;
-      
-      thisWidget.getElements(element);
-      thisWidget.value = settings.amountWidget.defaultValue;
+
+      // console.log('AmountWidget ran. initQuantity passed:',initQuantity);
+      thisWidget.getElements(element);  
+
+      if ((!thisWidget.value) && (!initQuantity)){ // if both are undefined or both exist:
+        if (!thisWidget.value) { //... then do this test to check if both are undefined and if this is true, assign amountWidget.defaultValue: 
+          thisWidget.value = settings.amountWidget.defaultValue;
+        }
+      } else { // otherwise one of them exists, which one? Find out:
+        if (!thisWidget.value) { // if this is undefined - that means initQuantity exists:
+          thisWidget.value = initQuantity;
+        } // otherwise thisWidget.value exists and  no  initQuantity was passed, so do nothing.
+      }      
+        
+      // console.log('thisWidget.value is now:',thisWidget.value);
       thisWidget.setValue(thisWidget.input.value);
       thisWidget.initActions(); 
-      
-      // console.log('AmountWidget:',thisWidget);
-      // console.log('constructor arguments:',element);
     }
     
     getElements(element){
-      
       const thisWidget = this;
 
       thisWidget.element = element;
@@ -348,9 +357,8 @@
 
     setValue(value){
       const thisWidget = this;
-      
       const newValue = parseInt(value);
-      const currentValue = parseInt(thisWidget.input.value); // converts inpit to integer
+      const currentValue = parseInt(thisWidget.input.value); // converts input to integer
       
       /* Validation here */
       
@@ -368,7 +376,6 @@
         thisWidget.value = newValue;
         thisWidget.announce();
       }
-
       thisWidget.input.value = thisWidget.value;
       // console.log('Qty set to: ' + thisWidget.value);
     }
@@ -408,8 +415,8 @@
       thisCart.products = [];
       thisCart.getElements(element);
       thisCart.initActions();
-      console.log('[+] Cart created.');
-      console.log('...details:',thisCart);
+      // console.log('[+] Cart created.');
+      // console.log('...details:',thisCart);
       // console.log('cart wrapper:',thisCart.dom.wrapper);
     }
 
@@ -434,7 +441,7 @@
     add(menuProduct){
       const thisCart = this;  // eslint-disable-line no-unused-vars
       // console.log('Adding product:',menuProduct);
-      console.log('Product ' + menuProduct.name + ' added to cart.');
+      // console.log('Product ' + menuProduct.name + ' added to cart.');
 
       /* NEW - CART: 1. generate HTML based on template */
       const generatedHTML = templates.cartProduct(menuProduct); 
@@ -460,14 +467,15 @@
       thisCartProduct.name = menuProduct.name;
       thisCartProduct.price = menuProduct.price;
       thisCartProduct.priceSingle = menuProduct.priceSingle;
-      thisCartProduct.quantity = menuProduct.quantity;
+      thisCartProduct.quantity = menuProduct.quantity; // This property was called thisCartProduct.amount in the bootcamp
       thisCartProduct.params = JSON.parse(JSON.stringify(menuProduct.params));
 
       thisCartProduct.getElements(element);
+      thisCartProduct.initAmountWidget();
       
-      console.log('[+] CartProduct created:',thisCartProduct.name);
-      console.log('...details:',thisCartProduct);
-      // console.log('name: ' + thisCartProduct.name + '(' + thisCartProduct.name + '),');
+      // console.log('[+] CartProduct created:');
+      // console.log('...details:',thisCartProduct);
+      // console.log(thisCartProduct.name);
       // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
 
     }
@@ -482,6 +490,25 @@
       thisCartProduct.dom.price = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.price);
       thisCartProduct.dom.edit = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.edit);
       thisCartProduct.dom.remove = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.remove);
+    }
+
+    initAmountWidget() {
+      const thisCartProduct = this;
+      // console.log('thisCartProduct in initAmountW:',thisCartProduct);
+      // console.log('thisCartProduct.quantity in initAmountW:',thisCartProduct.quantity);
+      thisCartProduct.amountWidget = new AmountWidget(thisCartProduct.dom.amountWidget,thisCartProduct.quantity);
+      // console.log('thisCartProduct.amountWidget.value:',thisCartProduct.amountWidget.value);
+      // amountWidget.value is the quantity of this cart product
+      thisCartProduct.dom.amountWidget.addEventListener('updated', function(){
+        thisCartProduct.quantity = thisCartProduct.amountWidget.value;
+        thisCartProduct.price = thisCartProduct.priceSingle * thisCartProduct.quantity;
+
+        // console.log('initAmountWidget in CartProd. ran.');
+        // console.log('thisCartProduct.quantity:',thisCartProduct.quantity); // Works OK
+        // console.log('thisCartProduct.price:',thisCartProduct.price); // Works OK  
+        
+        thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
+      });
     }
   }
 
@@ -513,8 +540,8 @@
     init: function(){
       const thisApp = this;
 
-      console.log(' ');
-      console.log('*** App starting ***');
+      // console.log(' ');
+      // console.log('*** App starting ***');
       // console.log('thisApp:', thisApp);
       // console.log('classNames:', classNames);
       // console.log('settings:', settings);
