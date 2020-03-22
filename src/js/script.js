@@ -78,7 +78,6 @@
     cartProduct: Handlebars.compile(document.querySelector(select.templateOf.cartProduct).innerHTML),
   };
   
-  
   /* ######### Classes ######### */
 
   class Product{
@@ -95,7 +94,8 @@
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log('..for prod.:',thisProduct.id);
+      console.log('[+] Product created:',thisProduct.id);
+      console.log('...details:',thisProduct);
     }
 
     renderInMenu(){
@@ -235,8 +235,6 @@
           /* Image handling part */
           const wantedImageClass = paramId + '-' + optionId;
           // console.log('wantedImageClass:',wantedImageClass);
-          console.log('option:',option);
-          console.log('optionId:',optionId);
           if(optionSelected){
             /* go through allImagesOfThisProduct */
             /* NEW code: Cart support */
@@ -296,7 +294,7 @@
       // console.log('thisProduct.priceElem.innerHTML:',thisProduct.priceElem.innerHTML);
       // console.log('thisProduct.priceElem',thisProduct.priceElem);
       thisProduct.element.querySelector(select.menuProduct.priceElem).innerHTML= thisProduct.priceElem;
-      console.log('thisProduct.params:',thisProduct.params);
+      // console.log('thisProduct.params:',thisProduct.params);
     }
   
     initAmountWidget() {
@@ -320,7 +318,7 @@
       thisApp.cart = new Cart(cartElem);
       dlatego tu w ten sposób odwołujemy się do jej metody add, którą zapisaliśmy w klasie Cart jako add(menuProduct). Metoda add otrzyma więc odwołanie do instancji produktu, dzięki czemu będzie mogła odczytywać jej właściwości i wykonywać jej metody. W metodzie add ta instancja produktu będzie dostępna jako menuProduct. */
 
-      console.log('Product:',thisProduct);
+      console.log(' ...details:',thisProduct);
     
     }
   }
@@ -410,7 +408,8 @@
       thisCart.products = [];
       thisCart.getElements(element);
       thisCart.initActions();
-      console.log('new Cart:',thisCart);
+      console.log('[+] Cart created.');
+      console.log('...details:',thisCart);
       // console.log('cart wrapper:',thisCart.dom.wrapper);
     }
 
@@ -420,7 +419,7 @@
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
       thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
-      console.log('thisCart.dom.productList:',thisCart.dom.productList);
+      // console.log('thisCart.dom.productList:',thisCart.dom.productList);
     }
 
     initActions(){
@@ -434,7 +433,8 @@
 
     add(menuProduct){
       const thisCart = this;  // eslint-disable-line no-unused-vars
-      console.log('Adding product:',menuProduct);
+      // console.log('Adding product:',menuProduct);
+      console.log('Product ' + menuProduct.name + ' added to cart.');
 
       /* NEW - CART: 1. generate HTML based on template */
       const generatedHTML = templates.cartProduct(menuProduct); 
@@ -446,8 +446,45 @@
 
       /* NEW - CART: add these DOM elements to thisCart.dom.productList */
       thisCart.dom.productList.appendChild(thisCart.generatedDOM);
+
+      thisCart.products.push(menuProduct);
+      // console.log('thisCart.products:',thisCart.products);
     }
   }
+
+  class cartProduct{ // eslint-disable-line no-unused-vars
+    constructor(menuProduct,element){
+      const thisCartProduct = this; 
+      
+      thisCartProduct.id = menuProduct.id;
+      thisCartProduct.name = menuProduct.name;
+      thisCartProduct.price = menuProduct.price;
+      thisCartProduct.priceSingle = menuProduct.priceSingle;
+      thisCartProduct.quantity = menuProduct.quantity;
+      thisCartProduct.params = JSON.parse(JSON.stringify(menuProduct.params));
+      thisCartProduct.getElements(element);
+      
+      console.log('[+] cartProduct created:',thisCartProduct.name);
+      console.log('...details:',thisCartProduct);
+      // console.log('name: ' + thisCartProduct.name + '(' + thisCartProduct.name + '),');
+      // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
+
+    }
+
+    getElements(element){
+      const thisCartProduct = this;
+
+      thisCartProduct.dom = {};
+
+      thisCartProduct.dom.wrapper = element;
+      thisCartProduct.dom.amountWidget = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.amountWidget);
+      thisCartProduct.dom.price = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.price);
+      thisCartProduct.dom.edit = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.edit);
+      thisCartProduct.dom.remove = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.remove);
+
+    }
+  }
+
 
   const app = {
     initMenu: function(){
