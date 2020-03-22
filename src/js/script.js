@@ -441,19 +441,19 @@
       // console.log('Cart generatedHTML',generatedHTML);
 
       /* NEW - CART: 2. create DOM elementS (using utils.createElementFromHTML?) and save to generatedDOM */
-      thisCart.generatedDOM = utils.createDOMFromHTML(generatedHTML);
-      // console.log('generatedDOM',thisCart.generatedDOM);
+      const generatedDOM = utils.createDOMFromHTML(generatedHTML);
+      // console.log('generatedDOM',generatedDOM);
 
       /* NEW - CART: add these DOM elements to thisCart.dom.productList */
-      thisCart.dom.productList.appendChild(thisCart.generatedDOM);
+      thisCart.dom.productList.appendChild(generatedDOM);
 
-      thisCart.products.push(menuProduct);
+      thisCart.products.push(new CartProduct(menuProduct, generatedDOM));
       // console.log('thisCart.products:',thisCart.products);
     }
   }
 
-  class cartProduct{ // eslint-disable-line no-unused-vars
-    constructor(menuProduct,element){
+  class CartProduct{ // eslint-disable-line no-unused-vars
+    constructor(menuProduct, element){
       const thisCartProduct = this; 
       
       thisCartProduct.id = menuProduct.id;
@@ -462,9 +462,10 @@
       thisCartProduct.priceSingle = menuProduct.priceSingle;
       thisCartProduct.quantity = menuProduct.quantity;
       thisCartProduct.params = JSON.parse(JSON.stringify(menuProduct.params));
+
       thisCartProduct.getElements(element);
       
-      console.log('[+] cartProduct created:',thisCartProduct.name);
+      console.log('[+] CartProduct created:',thisCartProduct.name);
       console.log('...details:',thisCartProduct);
       // console.log('name: ' + thisCartProduct.name + '(' + thisCartProduct.name + '),');
       // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
@@ -481,10 +482,8 @@
       thisCartProduct.dom.price = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.price);
       thisCartProduct.dom.edit = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.edit);
       thisCartProduct.dom.remove = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.remove);
-
     }
   }
-
 
   const app = {
     initMenu: function(){
