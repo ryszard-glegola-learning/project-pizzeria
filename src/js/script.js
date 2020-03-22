@@ -303,7 +303,7 @@
       thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem,thisProduct.quantity);
       thisProduct.amountWidgetElem.addEventListener('updated', function(){
         thisProduct.processOrder();
-        // console.log('initAmountWidget in Prod. ran.');
+        console.log('initAmountWidget in Prod. ran, so processOrder ran.');
       });
     }
 
@@ -329,7 +329,7 @@
       const thisWidget = this;
 
       // console.log('AmountWidget ran. initQuantity passed:',initQuantity);
-      thisWidget.getElements(element);  
+      thisWidget.getElements(element);
 
       if ((!thisWidget.value) && (!initQuantity)){ // if both are undefined or both exist:
         if (!thisWidget.value) { //... then do this test to check if both are undefined and if this is true, assign amountWidget.defaultValue: 
@@ -404,7 +404,9 @@
     announce(){
       const thisWidget = this;
   
-      const event = new Event ('updated');
+      const event = new CustomEvent ('updated', {
+        bubbles: true
+      });
       thisWidget.element.dispatchEvent(event);
     }
   }
@@ -415,9 +417,9 @@
       thisCart.products = [];
       thisCart.getElements(element);
       thisCart.initActions();
-      // console.log('[+] Cart created.');
-      // console.log('...details:',thisCart);
-      // console.log('cart wrapper:',thisCart.dom.wrapper);
+      thisCart.deliveryFee = settings.cart.defaultDeliveryFee;
+      console.log('[+] Cart created.');
+      console.log('...details:',thisCart);      
     }
 
     getElements(element){
@@ -426,22 +428,36 @@
       thisCart.dom.wrapper = element;
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
       thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
-      // console.log('thisCart.dom.productList:',thisCart.dom.productList);
+      thisCart.renderTotalsKeys = ['totalNumber', 'totalPrice', 'subtotalPrice', 'deliveryFee'];
+
+      for(let key of thisCart.renderTotalsKeys){
+        thisCart.dom[key] = thisCart.dom.wrapper.querySelectorAll(select.cart[key]);
+        // console.log('thisCart.dom[' + key + ']: '+ thisCart.dom[key]);
+        /* outputs: e.g. thisCart.dom[subtotalPrice]: [object NodeList], where NodeList is <strong>3.5</strong> - value for span class=subTotal and so on.*/
+      }
     }
 
     initActions(){
       const thisCart = this;
       // console.log('thisCart.dom.toggleTrigger:',thisCart.dom.toggleTrigger);
+      
       thisCart.dom.toggleTrigger.addEventListener('click',function(){
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
-        // console.log('Cart clicked!',thisCart.dom.wrapper.classList);
+        // console.log('Cart clicked!',thisCart.dom.wrapper.classList); // Shows class list, you can see class 'active' is toggled with each click
       });
+ 
+      thisCart.dom.productList.addEventListener('updated',function(){
+        thisCart.update();
+        console.log('initAmountWidget in Cart ran, so cart updated.');
+      });  
+   
     }
 
     add(menuProduct){
       const thisCart = this;  // eslint-disable-line no-unused-vars
+
       // console.log('Adding product:',menuProduct);
-      // console.log('Product ' + menuProduct.name + ' added to cart.');
+      console.log('Product ' + menuProduct.name + ' added to cart.');
 
       /* NEW - CART: 1. generate HTML based on template */
       const generatedHTML = templates.cartProduct(menuProduct); 
@@ -455,8 +471,39 @@
       thisCart.dom.productList.appendChild(generatedDOM);
 
       thisCart.products.push(new CartProduct(menuProduct, generatedDOM));
-      // console.log('thisCart.products:',thisCart.products);
+      console.log('thisCart.products:',thisCart.products);
+
+      thisCart.update();
     }
+
+    update(){
+      const thisCart = this;
+
+      thisCart.totalNumber = 0;
+      thisCart.subtotalPrice = 0;
+
+      for (const product of thisCart.products) {
+        thisCart.subtotalPrice += product.price;
+        thisCart.totalNumber += product.quantity; // In BOOTCAMP this property was called 'amount'
+      }
+
+      thisCart.totalPrice = thisCart.subtotalPrice + thisCart.deliveryFee;
+      // console.log('totalNumber:',thisCart.totalNumber);
+      // console.log('subtotalPrice:',thisCart.subtotalPrice);
+      // console.log('thisCart.totalPrice',thisCart.totalPrice);
+      // console.log('thisCart.dom:',thisCart.dom);
+      // console.log('thisCart:',thisCart);
+
+      for(let key of thisCart.renderTotalsKeys){
+        for(let elem of thisCart.dom[key]){
+          elem.innerHTML = thisCart[key];
+          // console.log('Element dla thisCart[' + key + ']: ' + elem.innerHTML);
+        }
+      }
+
+      /* W powyższje pętli zaczynamy od takiej samej pętli, iterującej po thisCart.renderTotalsKeys, a następnie wykonujemy pętlę iterującą po każdym elemencie z kolekcji, zapisanej wcześniej pod jednym z kluczy w thisCart.renderTotalsKeys. Dla każdego z tych elementów ustawiamy właściwość koszyka, która ma taki sam klucz. */
+    }
+    
   }
 
   class CartProduct{ // eslint-disable-line no-unused-vars
@@ -473,9 +520,7 @@
       thisCartProduct.getElements(element);
       thisCartProduct.initAmountWidget();
       
-      // console.log('[+] CartProduct created:');
-      // console.log('...details:',thisCartProduct);
-      // console.log(thisCartProduct.name);
+      console.log('[+] CartProduct created:',thisCartProduct.name);
       // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
 
     }
