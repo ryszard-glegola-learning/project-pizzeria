@@ -328,7 +328,9 @@
     constructor(element,initQuantity = null){ // I can pass initQuantity optionally
       const thisWidget = this;
 
-      // console.log('AmountWidget ran. initQuantity passed:',initQuantity);
+      console.log('[x] AmountWidget ran.');
+      console.log('- initQuantity passed:',initQuantity);
+      console.log('- thisWidget.value passed:',thisWidget.value);
       thisWidget.getElements(element);
 
       if ((!thisWidget.value) && (!initQuantity)){ // if both are undefined or both exist:
@@ -357,16 +359,22 @@
 
     setValue(value){
       const thisWidget = this;
+      // console.log('thisWidget.value:',thisWidget.value);
+      // console.log('New value received:',value);
+      // console.log('New value from input:',thisWidget.input.value);
       const newValue = parseInt(value);
-      const currentValue = parseInt(thisWidget.input.value); // converts input to integer
-      
+      // console.log('Parsed to newValue:',newValue);
+      // this line previously: 
+      // const currentValue = parseInt(thisWidget.input.value); 
+      // ... converts input to integer
+      const currentValue = parseInt(thisWidget.value); 
+      // console.log('currentValue:',currentValue);
+
       /* Validation here */
       
       // console.log(' ------------ ');
-      // console.log('value:',value);
-      // console.log('thisWidget.input.value:',thisWidget.input.value);
-      // console.log('currentValue:',currentValue);
-      // console.log('newValue:',newValue);
+      // console.log(' [x] setValue ran.  ');
+      // console.log('currentValue after parsing:',currentValue);
       // console.log('defaultMin:',settings.amountWidget.defaultMin);
       // console.log('defaultMax:',settings.amountWidget.defaultMax);
       
@@ -376,28 +384,32 @@
         thisWidget.value = newValue;
         thisWidget.announce();
       }
+
       thisWidget.input.value = thisWidget.value;
-      // console.log('Qty set to: ' + thisWidget.value);
+      console.log('New input value:', thisWidget.input.value);
+      console.log('Qty set to: ' + thisWidget.value);
     }
 
     initActions(){
       const thisWidget = this;
 
       // console.log('Event listeners added.');
-      thisWidget.input.addEventListener('change', function(event){ // eslint-disable-line no-unused-vars
+      thisWidget.input.addEventListener('change', function(event){  // eslint-disable-line no-unused-vars
         thisWidget.setValue(thisWidget.input.value);
+        console.log('thisWidget input value:',thisWidget.input.value);
+        console.log('Quantity changed!');
       });
 
       thisWidget.linkDecrease.addEventListener('click', function(event){
         event.preventDefault();
         thisWidget.setValue(thisWidget.value - 1);
-        // console.log('Quantity decreased!');
+        console.log('Quantity decreased!');
       });
 
       thisWidget.linkIncrease.addEventListener('click', function(event){
         event.preventDefault();
         thisWidget.setValue(thisWidget.value + 1);
-        // console.log('Quantity increased!');
+        console.log('Quantity increased!');
       });
     }
 
@@ -407,6 +419,7 @@
       const event = new CustomEvent ('updated', {
         bubbles: true
       });
+
       thisWidget.element.dispatchEvent(event);
     }
   }
@@ -440,7 +453,7 @@
     initActions(){
       const thisCart = this;
       // console.log('thisCart.dom.toggleTrigger:',thisCart.dom.toggleTrigger);
-      
+
       thisCart.dom.toggleTrigger.addEventListener('click',function(){
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
         // console.log('Cart clicked!',thisCart.dom.wrapper.classList); // Shows class list, you can see class 'active' is toggled with each click
@@ -448,13 +461,18 @@
  
       thisCart.dom.productList.addEventListener('updated',function(){
         thisCart.update();
-        console.log('initAmountWidget in Cart ran, so cart updated.');
-      });  
+        console.log('initActions in Cart ran > cart updated.');
+      });
+
+      thisCart.dom.productList.addEventListener('remove',function(){
+        thisCart.remove(event.detail.cartProduct);
+        console.log('initActions in Cart ran > cart product removed.');
+      });
    
     }
 
     add(menuProduct){
-      const thisCart = this;  // eslint-disable-line no-unused-vars
+      const thisCart = this;
 
       // console.log('Adding product:',menuProduct);
       console.log('Product ' + menuProduct.name + ' added to cart.');
@@ -481,12 +499,20 @@
 
       thisCart.totalNumber = 0;
       thisCart.subtotalPrice = 0;
+      thisCart.deliveryFee = settings.cart.defaultDeliveryFee; // this has to be re-set to default here in case it is set to zero later under 'My addiion' below.
 
       for (const product of thisCart.products) {
         thisCart.subtotalPrice += product.price;
         thisCart.totalNumber += product.quantity; // In BOOTCAMP this property was called 'amount'
       }
 
+      // My addition: when all products are removed, deliveryFee should be zero.
+      console.log('thisCart.products[0]:',thisCart.products[0]);
+      if ((thisCart.subtotalPrice == 0) || (!thisCart.products[0])) {
+        thisCart.deliveryFee = 0;
+      }
+      
+      
       thisCart.totalPrice = thisCart.subtotalPrice + thisCart.deliveryFee;
       // console.log('totalNumber:',thisCart.totalNumber);
       // console.log('subtotalPrice:',thisCart.subtotalPrice);
@@ -503,10 +529,41 @@
 
       /* W powyższje pętli zaczynamy od takiej samej pętli, iterującej po thisCart.renderTotalsKeys, a następnie wykonujemy pętlę iterującą po każdym elemencie z kolekcji, zapisanej wcześniej pod jednym z kluczy w thisCart.renderTotalsKeys. Dla każdego z tych elementów ustawiamy właściwość koszyka, która ma taki sam klucz. */
     }
+
+    remove(cartProduct){
+      // DONE declare constant thisCart
+      const thisCart = this;
+      console.log(' ');
+      console.log(' == remove STARTED == ');
+      // console.log('thisCart:',thisCart);
+      // console.log('cartProduct:',cartProduct);
+      // console.log('cartProduct.dom.wrapper:',cartProduct.dom.wrapper);
+      // console.log('products BEFORE:',thisCart.products);
+      
+      // DONE find and declare index of product removed in array thisCart.products
+      const indexOfCartProductRemoved = thisCart.products.indexOf(cartProduct);
+      // console.log('cartProduct',cartProduct);
+      console.log('* index of prod. removed:',indexOfCartProductRemoved);
+      console.log('* product removed:',thisCart.products[indexOfCartProductRemoved].name);
+
+      // DONE use splice to remove array item thisCart.products[index] 
+      const deletedCartProduct = thisCart.products.splice(indexOfCartProductRemoved, 1); // eslint-disable-line no-unused-vars
+            
+      // console.log('products AFTER REMOVAL:',thisCart.products);
+
+      // TODO remove cartProduct.dom.wrapper from DOM 
+      cartProduct.dom.wrapper.remove();
+      // bingo, remove() hass to end with BRACKETS! Don't forget the f brackets!
+
+      // TODO run update() to recalculate cart contents
+      thisCart.update();
+
+    }
+
     
   }
 
-  class CartProduct{ // eslint-disable-line no-unused-vars
+  class CartProduct{ 
     constructor(menuProduct, element){
       const thisCartProduct = this; 
       
@@ -519,8 +576,9 @@
 
       thisCartProduct.getElements(element);
       thisCartProduct.initAmountWidget();
-      
-      console.log('[+] CartProduct created:',thisCartProduct.name);
+      thisCartProduct.initActions();
+
+      // console.log('[+] CartProduct created:',thisCartProduct.name);
       // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
 
     }
@@ -553,6 +611,36 @@
         // console.log('thisCartProduct.price:',thisCartProduct.price); // Works OK  
         
         thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
+      });
+    }
+
+    remove(){
+      const thisCartProduct = this;
+
+      const event = new CustomEvent('remove', {
+        bubbles: true,
+        detail: { /* właściwość detail: Możemy w niej przekazać dowolne informacje do handlera eventu. W tym przypadku przekazujemy odwołanie do tej instancji, dla której kliknięto guzik usuwania. Właśnie w ten sposób odczytaliśmy [instancję thisCartProduct] i przekazaliśmy metodzie thisCart.remove. */
+          cartProduct: thisCartProduct, 
+        },
+      });
+
+      thisCartProduct.dom.wrapper.dispatchEvent(event);
+      console.log('Removed!');
+    }
+
+    initActions(){
+      const thisCartProduct = this;
+
+      /* // TEMPORARILY HIDDEN, as instructed. 
+      When uncommenting this, uncomment also <li><a href="#edit">Edit ... </li> --> in index.html.
+      thisCartProduct.dom.edit.addEventListener('click', function(event){
+        event.preventDefault();
+      });
+      */
+
+      thisCartProduct.dom.remove.addEventListener('click', function(event){
+        event.preventDefault();
+        thisCartProduct.remove();
       });
     }
   }
