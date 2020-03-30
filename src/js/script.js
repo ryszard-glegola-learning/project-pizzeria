@@ -1,4 +1,4 @@
-/* global Handlebars, utils, dataSource */
+/* global Handlebars, utils */ 
 
 {
   'use strict';
@@ -70,6 +70,11 @@
     },
     cart: {
       defaultDeliveryFee: 20,
+    },
+    db: {
+      url: '//localhost:3131',
+      product: 'product',
+      order: 'order',
     },
   };
 
@@ -442,7 +447,9 @@
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(select.cart.toggleTrigger);
       thisCart.dom.productList = thisCart.dom.wrapper.querySelector(select.cart.productList);
       thisCart.renderTotalsKeys = ['totalNumber', 'totalPrice', 'subtotalPrice', 'deliveryFee'];
-
+      thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
+      thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
+      thisCart.dom.address = thisCart.dom.wrapper.querySelector(select.cart.address); 
       for(let key of thisCart.renderTotalsKeys){
         thisCart.dom[key] = thisCart.dom.wrapper.querySelectorAll(select.cart[key]);
         // console.log('thisCart.dom[' + key + ']: '+ thisCart.dom[key]);
@@ -464,11 +471,25 @@
         // console.log('initActions in Cart ran > cart updated.');
       });
 
+      thisCart.dom.phone.addEventListener('change',function(){
+        thisCart.update();
+        console.log('initActions in Cart ran > phone updated.');
+      });
+
+      thisCart.dom.address.addEventListener('change',function(){
+        thisCart.update();
+        console.log('initActions in Cart ran > address updated.');
+      });
+
       thisCart.dom.productList.addEventListener('remove',function(){
         thisCart.remove(event.detail.cartProduct);
         // console.log('initActions in Cart ran > cart product removed.');
       });
-   
+
+      thisCart.dom.form.addEventListener('submit',function(event){
+        event.preventDefault();
+        thisCart.sendOrder();
+      });
     }
 
     add(menuProduct){
@@ -499,7 +520,9 @@
 
       thisCart.totalNumber = 0;
       thisCart.subtotalPrice = 0;
-      thisCart.deliveryFee = settings.cart.defaultDeliveryFee; // this has to be re-set to default here in case it is set to zero later under 'My addiion' below.
+      thisCart.deliveryFee = settings.cart.defaultDeliveryFee; // this has to be re-set to default here in case it is set to zero later under 'My addition' below.
+      thisCart.phone = thisCart.dom.phone.value;
+      thisCart.address = thisCart.dom.address.value;
 
       for (const product of thisCart.products) {
         thisCart.subtotalPrice += product.price;
@@ -533,34 +556,73 @@
     remove(cartProduct){
       // DONE declare constant thisCart
       const thisCart = this;
-      // console.log(' ');
-      // console.log(' == remove STARTED == ');
-      // console.log('thisCart:',thisCart);
-      // console.log('cartProduct:',cartProduct);
-      // console.log('cartProduct.dom.wrapper:',cartProduct.dom.wrapper);
-      // console.log('products BEFORE:',thisCart.products);
-      
-      // DONE find and declare index of product removed in array thisCart.products
       const indexOfCartProductRemoved = thisCart.products.indexOf(cartProduct);
-      // console.log('cartProduct',cartProduct);
-      // console.log('* index of prod. removed:',indexOfCartProductRemoved);
-      // console.log('* product removed:',thisCart.products[indexOfCartProductRemoved].name);
 
       // DONE use splice to remove array item thisCart.products[index] 
-      const deletedCartProduct = thisCart.products.splice(indexOfCartProductRemoved, 1); // eslint-disable-line no-unused-vars
-            
-      // console.log('products AFTER REMOVAL:',thisCart.products);
-
-      // TODO remove cartProduct.dom.wrapper from DOM 
+      thisCart.products.splice(indexOfCartProductRemoved, 1); 
+      
+      // DONE remove cartProduct.dom.wrapper from DOM 
       cartProduct.dom.wrapper.remove();
-      // bingo, remove() hass to end with BRACKETS! Don't forget the f brackets!
-
-      // TODO run update() to recalculate cart contents
+      
+      // DONE run update() to recalculate cart contents
       thisCart.update();
 
     }
 
-    
+    sendOrder(){
+      const thisCart = this;
+      console.log('thisCart in SendOrder:',thisCart);
+      const url = settings.db.url + '/' + settings.db.order;
+      const payload = {
+        address: 'test',
+        totalPrice: thisCart.totalPrice,
+        totalNumber: thisCart.totalNumber,
+        subtotalPrice: thisCart.subtotalPrice,
+        deliveryFee: thisCart.deliveryFee,
+        deliveryPhone: thisCart.phone,
+        deliveryAddress: thisCart.address,
+        products: [],
+      };
+
+      console.log('thisCart.products in sendOrder:',thisCart.products);
+
+      /* for (const product in thisCart.products) {  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
+        const anotherCartProduct = CartProduct.getData();
+        payload.products.push(anotherCartProduct);
+        console.log('payload.products[' + product + ']:' + anotherCartProduct);
+      } */
+
+      for (let product in thisCart.products) {  // Workaround to the for loop above - DOES NOT USE CartProduct.getData();
+        const anotherCartProduct = {};
+        anotherCartProduct.id = thisCart.products[product].id;
+        anotherCartProduct.name = thisCart.products[product].name;
+        anotherCartProduct.price = thisCart.products[product].price;
+        anotherCartProduct.priceSingle = thisCart.products[product].priceSingle;
+        anotherCartProduct.quantity = thisCart.products[product].quantity;
+        anotherCartProduct.params = thisCart.products[product].params;
+        payload.products.push(anotherCartProduct);
+        console.log('payload.products[' + product + ']:' + anotherCartProduct);
+      }
+
+      console.log(' === > ');
+      console.log('payload in SendOrder:',payload);
+      console.log('   * * *   ');
+ 
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      };
+
+      fetch(url, options)
+        .then(function(response){
+          return response.json();
+        }).then(function(parsedResponse){
+          console.log('parsedResponse rcvd in SendOrder:',parsedResponse);
+        });
+    }
   }
 
   class CartProduct{ 
@@ -577,6 +639,7 @@
       thisCartProduct.getElements(element);
       thisCartProduct.initAmountWidget();
       thisCartProduct.initActions();
+      // thisCartProduct.getData();
 
       // console.log('[+] CartProduct created:',thisCartProduct.name);
       // console.log('price: ' + thisCartProduct.price + '(' + thisCartProduct.quantity + ' x ' + thisCartProduct.priceSingle + ')');
@@ -628,6 +691,20 @@
       // console.log('Removed!');
     }
 
+    getData(){  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
+      const thisCartProduct = this;
+
+      const productInCart = {};
+      productInCart.id = thisCartProduct.id;
+      productInCart.name = thisCartProduct.name;
+      productInCart.price = thisCartProduct.price;
+      productInCart.priceSingle = thisCartProduct.priceSingle;
+      productInCart.quantity = thisCartProduct.quantity;
+      productInCart.params = thisCartProduct.params;        
+      console.log('getData ran for',thisCartProduct.id);
+      return(productInCart);
+    }
+
     initActions(){
       const thisCartProduct = this;
 
@@ -643,6 +720,7 @@
         thisCartProduct.remove();
       });
     }
+
   }
 
   const app = {
@@ -654,13 +732,30 @@
       // console.log('testProduct:', testProduct);
 
       for (let productData in thisApp.data.products) {
-        new Product(productData, thisApp.data.products[productData]);
+        new Product(thisApp.data.products[productData].id, thisApp.data.products[productData]);
       }
     },
 
     initData: function(){
       const thisApp = this;
-      thisApp.data = dataSource;
+      thisApp.data = {};
+      const url = settings.db.url + '/' + settings.db.product;
+
+      fetch(url)
+        .then(function(rawResponse){
+          return rawResponse.json();
+        })
+        .then(function(parsedResponse){
+          console.log('ParsedResponse rcvd in IniData:',parsedResponse);
+
+          /* save parsedResponse as thisApp.data.products */
+          thisApp.data.products = parsedResponse;
+
+          /* execute initMenu method */
+          thisApp.initMenu();
+        });
+      
+      // console.log('thisApp.data', JSON.stringify(thisApp.data));
     },
 
     initCart: function () {
@@ -681,10 +776,11 @@
       // console.log('templates:', templates);
 
       thisApp.initData();
-      thisApp.initMenu();
+      // thisApp.initMenu(); /* this was moved inside thisApp.initData */
       thisApp.initCart();
     },
   };
 
   app.init();
+  // utils.convertDataSourceToDbJson(); // Ran once only to generate db/app.json with data
 }
