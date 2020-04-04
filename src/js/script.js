@@ -491,30 +491,7 @@
         thisCart.sendOrder();
       });
     }
-
-    add(menuProduct){
-      const thisCart = this;
-
-      // console.log('Adding product:',menuProduct);
-      // console.log('Product ' + menuProduct.name + ' added to cart.');
-
-      /* NEW - CART: 1. generate HTML based on template */
-      const generatedHTML = templates.cartProduct(menuProduct); 
-      // console.log('Cart generatedHTML',generatedHTML);
-
-      /* NEW - CART: 2. create DOM elementS (using utils.createElementFromHTML?) and save to generatedDOM */
-      const generatedDOM = utils.createDOMFromHTML(generatedHTML);
-      // console.log('generatedDOM',generatedDOM);
-
-      /* NEW - CART: add these DOM elements to thisCart.dom.productList */
-      thisCart.dom.productList.appendChild(generatedDOM);
-
-      thisCart.products.push(new CartProduct(menuProduct, generatedDOM));
-      // console.log('thisCart.products:',thisCart.products);
-
-      thisCart.update();
-    }
-
+    
     update(){
       const thisCart = this;
 
@@ -551,6 +528,29 @@
       }
 
       /* W powyższje pętli zaczynamy od takiej samej pętli, iterującej po thisCart.renderTotalsKeys, a następnie wykonujemy pętlę iterującą po każdym elemencie z kolekcji, zapisanej wcześniej pod jednym z kluczy w thisCart.renderTotalsKeys. Dla każdego z tych elementów ustawiamy właściwość koszyka, która ma taki sam klucz. */
+    }
+
+    add(menuProduct){
+      const thisCart = this;
+
+      // console.log('Adding product:',menuProduct);
+      // console.log('Product ' + menuProduct.name + ' added to cart.');
+
+      /* NEW - CART: 1. generate HTML based on template */
+      const generatedHTML = templates.cartProduct(menuProduct); 
+      // console.log('Cart generatedHTML',generatedHTML);
+
+      /* NEW - CART: 2. create DOM elementS (using utils.createElementFromHTML?) and save to generatedDOM */
+      const generatedDOM = utils.createDOMFromHTML(generatedHTML);
+      // console.log('generatedDOM',generatedDOM);
+
+      /* NEW - CART: add these DOM elements to thisCart.dom.productList */
+      thisCart.dom.productList.appendChild(generatedDOM);
+
+      thisCart.products.push(new CartProduct(menuProduct, generatedDOM));
+      // console.log('thisCart.products:',thisCart.products);
+
+      thisCart.update();
     }
 
     remove(cartProduct){
@@ -658,6 +658,22 @@
       thisCartProduct.dom.remove = thisCartProduct.dom.wrapper.querySelector(select.cartProduct.remove);
     }
 
+    initActions(){
+      const thisCartProduct = this;
+
+      /* // TEMPORARILY HIDDEN, as instructed. 
+      When uncommenting this, uncomment also <li><a href="#edit">Edit ... </li> --> in index.html.
+      thisCartProduct.dom.edit.addEventListener('click', function(event){
+        event.preventDefault();
+      });
+      */
+
+      thisCartProduct.dom.remove.addEventListener('click', function(event){
+        event.preventDefault();
+        thisCartProduct.remove();
+      });
+    }
+
     initAmountWidget() {
       const thisCartProduct = this;
       // console.log('thisCartProduct in initAmountW:',thisCartProduct);
@@ -703,22 +719,6 @@
       productInCart.params = thisCartProduct.params;        
       console.log('getData ran for',thisCartProduct.id);
       return(productInCart);
-    }
-
-    initActions(){
-      const thisCartProduct = this;
-
-      /* // TEMPORARILY HIDDEN, as instructed. 
-      When uncommenting this, uncomment also <li><a href="#edit">Edit ... </li> --> in index.html.
-      thisCartProduct.dom.edit.addEventListener('click', function(event){
-        event.preventDefault();
-      });
-      */
-
-      thisCartProduct.dom.remove.addEventListener('click', function(event){
-        event.preventDefault();
-        thisCartProduct.remove();
-      });
     }
 
   }
