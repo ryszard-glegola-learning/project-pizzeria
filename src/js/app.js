@@ -25,7 +25,7 @@ const app = {
         return rawResponse.json();
       })
       .then(function(parsedResponse){
-        console.log('ParsedResponse rcvd in IniData:',parsedResponse);
+        console.log('"ParsedResponse" received in app.InitData:',parsedResponse);
 
         /* save parsedResponse as thisApp.data.products */
         thisApp.data.products = parsedResponse;

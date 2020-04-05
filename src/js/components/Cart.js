@@ -61,6 +61,7 @@ class Cart{
 
     thisCart.dom.form.addEventListener('submit',function(event){
       event.preventDefault();
+      console.log('thisCart.dom:',thisCart.dom);
       thisCart.sendOrder();
     });
   }
@@ -157,30 +158,16 @@ class Cart{
       products: [],
     };
 
-    console.log('thisCart.products in sendOrder:',thisCart.products);
+    console.log('List of "thisCart.products" in Cart.sendOrder:',thisCart.products);
 
-    /* for (const product in thisCart.products) {  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
-      const anotherCartProduct = CartProduct.getData();
+    for (const product in thisCart.products) {  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
+      console.log('product:',product);
+      const anotherCartProduct = thisCart.products[product].getData();
       payload.products.push(anotherCartProduct);
-      console.log('payload.products[' + product + ']:' + anotherCartProduct);
-    } */
-
-    for (let product in thisCart.products) {  // Workaround to the for loop above - DOES NOT USE CartProduct.getData();
-      const anotherCartProduct = {};
-      anotherCartProduct.id = thisCart.products[product].id;
-      anotherCartProduct.name = thisCart.products[product].name;
-      anotherCartProduct.price = thisCart.products[product].price;
-      anotherCartProduct.priceSingle = thisCart.products[product].priceSingle;
-      anotherCartProduct.quantity = thisCart.products[product].quantity;
-      anotherCartProduct.params = thisCart.products[product].params;
-      payload.products.push(anotherCartProduct);
-      // console.log('payload.products[' + product + ']:' + anotherCartProduct);
+      console.log('Object "payload.products[' + product + ']":' + anotherCartProduct);
     }
-
-    // console.log(' === > ');
-    // console.log('payload in SendOrder:',payload);
-    // console.log('   * * *   ');
-
+    console.log(' == ORDER SUBMITTED! == ');
+    
     const options = {
       method: 'POST',
       headers: {
@@ -193,7 +180,7 @@ class Cart{
       .then(function(response){
         return response.json();
       }).then(function(parsedResponse){
-        console.log('parsedResponse rcvd in SendOrder:',parsedResponse);
+        console.log('"parsedResponse" received in Cart.SendOrder:',parsedResponse);
       });
   }
 }

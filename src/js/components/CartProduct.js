@@ -67,7 +67,7 @@ class CartProduct{
     // console.log('Removed!');
   }
 
-  getData(){  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
+  getData(){  
     const thisCartProduct = this;
 
     const productInCart = {};
@@ -77,7 +77,7 @@ class CartProduct{
     productInCart.priceSingle = thisCartProduct.priceSingle;
     productInCart.quantity = thisCartProduct.quantity;
     productInCart.params = thisCartProduct.params;        
-    console.log('getData ran for',thisCartProduct.id);
+    console.log('Yippee! CartProduct.getData successfully ran for',thisCartProduct.id);
     return(productInCart);
   }
 
