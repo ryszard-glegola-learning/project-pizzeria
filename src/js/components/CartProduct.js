@@ -1,5 +1,5 @@
 import {select} from '../settings.js'; 
-import AmountWidget from '../components/AmountWidget.js';
+import AmountWidget from './AmountWidget.js';
 
 class CartProduct{ 
   constructor(menuProduct, element){
@@ -37,10 +37,15 @@ class CartProduct{
   initAmountWidget() {
     const thisCartProduct = this;
     // console.log('thisCartProduct in initAmountW:',thisCartProduct);
-    // console.log('thisCartProduct.quantity in initAmountW:',thisCartProduct.quantity);
+
     thisCartProduct.amountWidget = new AmountWidget(thisCartProduct.dom.amountWidget,thisCartProduct.quantity);
-    // console.log('thisCartProduct.amountWidget.value:',thisCartProduct.amountWidget.value);
-    // amountWidget.value is the quantity of this cart product
+
+    // THIS IS WHERE QUANTITY IS DISPLAYED NEXT TO A NEW PRODUCT IN CART:
+
+    thisCartProduct.amountWidget.value = thisCartProduct.quantity;
+
+    // amountWidget.value is the value displayed for this product in cart!
+    
     thisCartProduct.dom.amountWidget.addEventListener('updated', function(){
       thisCartProduct.quantity = thisCartProduct.amountWidget.value;
       thisCartProduct.price = thisCartProduct.priceSingle * thisCartProduct.quantity;
@@ -77,7 +82,7 @@ class CartProduct{
     productInCart.priceSingle = thisCartProduct.priceSingle;
     productInCart.quantity = thisCartProduct.quantity;
     productInCart.params = thisCartProduct.params;        
-    console.log('Yippee! CartProduct.getData successfully ran for',thisCartProduct.id);
+    // console.log('Yippee! CartProduct.getData successfully ran for',thisCartProduct.id);
     return(productInCart);
   }
 

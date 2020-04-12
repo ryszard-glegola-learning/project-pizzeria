@@ -1,6 +1,7 @@
 import {settings, select, classNames} from './settings.js'; // ./ essential, points to a separate file
 import Product from './components/Product.js';
 import Cart from './components/Cart.js';
+import Booking from './components/Booking.js';
 
 const app = {
   initPages: function(){
@@ -116,6 +117,16 @@ const app = {
     });
   },
 
+  initBooking: function() {
+    const thisApp = this;
+
+    const bookingContainer = document.querySelector(select.containerOf.booking);
+    // console.log('bookingContainer',thisApp.bookingContainer);
+
+    thisApp.booking = new Booking(bookingContainer);
+
+  },
+
   init: function(){
     const thisApp = this;
 
@@ -130,6 +141,7 @@ const app = {
     // thisApp.initMenu(); /* this was moved inside thisApp.initData */
     thisApp.initCart();
     thisApp.initPages();
+    thisApp.initBooking();
   },
 };
 

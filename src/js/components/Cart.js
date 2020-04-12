@@ -1,6 +1,6 @@
 import {settings, select, classNames, templates} from '../settings.js'; 
 import {utils} from '../utils.js'; 
-import CartProduct from '../components/CartProduct.js';
+import CartProduct from './CartProduct.js';
 
 class Cart{
   constructor(element){
@@ -61,7 +61,7 @@ class Cart{
 
     thisCart.dom.form.addEventListener('submit',function(event){
       event.preventDefault();
-      console.log('thisCart.dom:',thisCart.dom);
+      // console.log('thisCart.dom:',thisCart.dom);
       thisCart.sendOrder();
     });
   }
@@ -70,7 +70,7 @@ class Cart{
     const thisCart = this;
 
     // console.log('Adding product:',menuProduct);
-    // console.log('Product ' + menuProduct.name + ' added to cart.');
+    console.log('Product ' + menuProduct.name + ' added to cart.');
 
     /* NEW - CART: 1. generate HTML based on template */
     const generatedHTML = templates.cartProduct(menuProduct); 
@@ -97,10 +97,9 @@ class Cart{
     thisCart.deliveryFee = settings.cart.defaultDeliveryFee; // this has to be re-set to default here in case it is set to zero later under 'My addition' below.
     thisCart.phone = thisCart.dom.phone.value;
     thisCart.address = thisCart.dom.address.value;
-
     for (const product of thisCart.products) {
       thisCart.subtotalPrice += product.price;
-      thisCart.totalNumber += product.quantity; // In BOOTCAMP this property was called 'amount'
+      thisCart.totalNumber += product.quantity; 
     }
 
     // My addition: when all products are removed, deliveryFee should be zero.
@@ -120,7 +119,6 @@ class Cart{
     for(let key of thisCart.renderTotalsKeys){
       for(let elem of thisCart.dom[key]){
         elem.innerHTML = thisCart[key];
-        // console.log('Element dla thisCart[' + key + ']: ' + elem.innerHTML);
       }
     }
 
@@ -145,7 +143,7 @@ class Cart{
 
   sendOrder(){
     const thisCart = this;
-    console.log('thisCart in SendOrder:',thisCart);
+    // console.log('thisCart in SendOrder:',thisCart);
     const url = settings.db.url + '/' + settings.db.order;
     const payload = {
       address: 'test',
@@ -158,13 +156,13 @@ class Cart{
       products: [],
     };
 
-    console.log('List of "thisCart.products" in Cart.sendOrder:',thisCart.products);
+    // console.log('List of "thisCart.products" in Cart.sendOrder:',thisCart.products);
 
-    for (const product in thisCart.products) {  // Couldn't make this method work from within Cart.sendOrder, results in "Uncaught TypeError: CartProduct.getData is not a function"
-      console.log('product:',product);
+    for (const product in thisCart.products) {
+      // console.log('product:',product);
       const anotherCartProduct = thisCart.products[product].getData();
       payload.products.push(anotherCartProduct);
-      console.log('Object "payload.products[' + product + ']":' + anotherCartProduct);
+      // console.log('Object "payload.products[' + product + ']":' + anotherCartProduct);
     }
     console.log(' == ORDER SUBMITTED! == ');
     
@@ -180,7 +178,7 @@ class Cart{
       .then(function(response){
         return response.json();
       }).then(function(parsedResponse){
-        console.log('"parsedResponse" received in Cart.SendOrder:',parsedResponse);
+        console.log('"ParsedResponse" received in Cart.SendOrder:',parsedResponse);
       });
   }
 }
