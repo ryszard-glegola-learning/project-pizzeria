@@ -15,7 +15,6 @@ class Booking{
   }
 
   getData(){
-    // eslint-disable-next-line no-unused-vars
     const thisBooking = this;
 
     const startDateParam = settings.db.dateStartParamKey + '=' + utils.dateToStr(thisBooking.datePicker.minDate);
@@ -37,9 +36,6 @@ class Booking{
       ],
     };
 
-    // // console.log('getData params',params);
-   
-    // eslint-disable-next-line no-unused-vars
     const urls = {
       booking:        settings.db.url + '/' + settings.db.booking 
                                       + '?' + params.booking.join('&'),
@@ -49,7 +45,7 @@ class Booking{
                                       + '?' + params.eventsRepeat.join('&'),  
     };
 
-    // // console.log('urls',urls);
+    // console.log('urls',urls);
 
     Promise.all([
       fetch(urls.booking),
@@ -99,7 +95,8 @@ class Booking{
         }
       }
     }
-    // console.log('thisBooking.booked:',thisBooking.booked); // Shows the entire booked object, cool!
+
+    console.log('thisBooking.booked BEFORE:',thisBooking.booked); // Shows the entire booked object, cool!
 
     thisBooking.updateDOM();
   }
@@ -114,12 +111,45 @@ class Booking{
     const startHour = utils.hourToNumber(hour);
 
     for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
-      // console.log('Loop:',hourBlock);
+
       if(typeof thisBooking.booked[date][hourBlock] == 'undefined'){
         thisBooking.booked[date][hourBlock] = [];
       }
   
       thisBooking.booked[date][hourBlock].push(table);
+
+    }
+  }
+
+  addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
+    const thisBooking = this;
+    let success = false;
+  
+    if(
+      typeof thisBooking.booked[date] == 'undefined'
+      &&
+      typeof thisBooking.bookingCacheObject[date] == 'undefined'
+    ){
+      thisBooking.bookingCacheObject[date] = {};
+    }
+
+    const startHour = utils.hourToNumber(hour);
+
+    for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
+
+      if(
+        typeof thisBooking.booked[date][hourBlock] == 'undefined'
+        &&
+        typeof thisBooking.bookingCacheObject[date][hourBlock] == 'undefined'
+      ){
+        thisBooking.bookingCacheObject[date][hourBlock] = [];
+        thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
+        success = true;
+      } else {
+        success = false;
+      }
+
+      return success;
 
     }
   }
@@ -139,6 +169,11 @@ class Booking{
     ){
       allAvailable = true;
     }
+
+    // console.log(' === check == ');
+    // console.log('allAvailable:',allAvailable);
+    // console.log('Date:',thisBooking.date);
+    // console.log('Hour:',thisBooking.hour);
 
     for(let table of thisBooking.dom.tables){
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
@@ -163,8 +198,7 @@ class Booking{
   render(booking){
     const thisBooking = this;
 
-    /* generate HTML using templates.bookingWidget, no args?? 
-    templates.bookingWidget = Handlebars.compile(document.querySelector(select.templateOf.bookingWidget).innerHTML)*/
+    /* generate HTML using templates.bookingWidget, no args */
     const generatedHTML = templates.bookingWidget();
     
     /* create an empty object thisBooking.dom */
@@ -201,6 +235,72 @@ class Booking{
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
     });
+
+    /* Add a listener to each table */
+    for (let table of thisBooking.dom.tables) {
+      let tableId = table.getAttribute(settings.booking.tableIdAttribute);
+      table.addEventListener('click', function(){
+        if (tableId != 'undefined') {
+          thisBooking.clickToToggleBooking(tableId);
+        }
+      });
+    }
+
+    /* Create object for temporary booking changes, to be posted to DB */
+    
+  }
+
+  /* === SUBTASK 11.3.1: Select and book or unselect a table by clicking === */
+
+  /* This runs if a table is clicked: */
+
+  clickToToggleBooking(tableId){
+    const thisBooking = this;
+
+    const bookingCache = {};
+    // eslint-disable-next-line no-unused-vars
+    let bookingAddSuccess = false;
+    
+    for (let table of thisBooking.dom.tables){
+      const tableIdAttr = table.getAttribute(settings.booking.tableIdAttribute);
+      
+      thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
+
+      // console.log('thisBooking.hoursAmountWidget',thisBooking.hoursAmountWidget);
+      // The following is the actual value in INPUT box of widget HOURS 
+      const durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
+
+      if (tableIdAttr == tableId){
+        console.log('Table ID found!',tableId);
+
+        /* if this is NOT the table clicked ... */
+        if(
+          !thisBooking.booked[thisBooking.date][thisBooking.hour].includes(tableId)
+        ){
+          /* Change the class to Active */
+          table.classList.add(classNames.booking.tableBooked);
+          // console.log('Table booked',tableId);
+          // console.log('Date booked:',thisBooking.datePicker.value);
+          // console.log('Hour booked:',thisBooking.hourPicker.value);
+          // console.log('Duration booked:',durationBooked);
+          
+          /* Check in the booked object if booking can be made and if it can, add it to the booking cache object */
+          bookingAddSuccess = thisBooking.addToBookingCache(bookingCache, thisBooking.datePicker.value, thisBooking.hourPicker.value, durationBooked, tableId);
+        
+        } else {
+          table.classList.remove(classNames.booking.tableBooked);
+          console.log('Table unbooked',tableId);
+        }         
+      }
+    }
+  
+
+    /**     Check table id, date, time, duration */
+    /**     Check if table is available (fetch) */
+    /*         If available, make active and add booking */
+    /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
+    /* If not available, add class table occupied (1s transition) */
+
   }
 }
 
