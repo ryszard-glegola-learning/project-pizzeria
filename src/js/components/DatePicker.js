@@ -2,6 +2,7 @@ import {settings, select} from '../settings.js';
 import {utils} from '../utils.js'; 
 import BaseWidget from './BaseWidget.js';
 
+
 class DatePicker extends BaseWidget{
   constructor(dateWrapper){
     super(dateWrapper, utils.dateToStr(new Date()));
@@ -28,7 +29,8 @@ class DatePicker extends BaseWidget{
       maxDate: thisWidget.maxDate,
       disable: [
         function(date) {
-          // return true to disable
+          // return true to disable days
+          // (date.getDay() === 1) disables Mondays, etc.
           return (date.getDay() === 1);
         }
       ],
@@ -36,9 +38,8 @@ class DatePicker extends BaseWidget{
         'firstDayOfWeek': 1 // start week on Monday
       },
       onChange: function(dateStr){
-        console.log('dateStr:',dateStr);
-        thisWidget.value = utils.dateToStr(dateStr[0]);
-        // console.log('thisWidget.value',thisWidget.value);
+        thisWidget.value = utils.addDays(utils.dateToStr(dateStr[0]),1); // Issue with Datepicker worked around
+        thisWidget.announce();
       },    
     };
 

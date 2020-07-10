@@ -16,7 +16,7 @@ class Booking{
 
   getData(){
     const thisBooking = this;
-    console.log('getData run.');
+    thisBooking.booked = {};
     const startDateParam = settings.db.dateStartParamKey + '=' + utils.dateToStr(thisBooking.datePicker.minDate);
     const endDateParam = settings.db.dateEndParamKey + '=' + utils.dateToStr(thisBooking.datePicker.maxDate);
 
@@ -74,8 +74,6 @@ class Booking{
 
   parseData(bookings,eventsCurrent,eventsRepeat){
     const thisBooking = this;
-    console.log('parseData run.');
-    thisBooking.booked = {};
 
     for(let item of bookings){
       thisBooking.makeBooked(item.date, item.hour, item.duration, item.table);
@@ -95,15 +93,12 @@ class Booking{
         }
       }
     }
-
-    console.log('thisBooking.booked:',thisBooking.booked); // Shows the entire booked object, cool!
-
     thisBooking.updateDOM();
   }
 
-  makeBooked(date, hour, duration, table){
+  makeBooked(date, hour, duration, table){  // runs once, fills the empty 'booked' with bookings
     const thisBooking = this;
-    // console.log('makeBooked run.');
+
     if(typeof thisBooking.booked[date] == 'undefined'){
       thisBooking.booked[date] = {};
     }
@@ -121,85 +116,51 @@ class Booking{
     }
   }
 
-  /* addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
+  addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
     const thisBooking = this;
-    console.log('addToBookingCache run.');
     let success = false;
-  
-    if(
-      typeof thisBooking.booked[date] == 'undefined'
-      &&
-      typeof thisBooking.bookingCacheObject[date] == 'undefined'
-    ){
+    console.log('addToBookingCache started.',bookingCacheObject);
+
+    for(let hourBlock = hour; hourBlock < hour + duration; hourBlock += 0.5){
       thisBooking.bookingCacheObject[date] = {};
+      thisBooking.bookingCacheObject[date][hourBlock] = [];
+      thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
+      success = true;
     }
 
-    const startHour = utils.hourToNumber(hour);
+    console.log('bookingCacheObject',bookingCacheObject);
 
-    for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
+    return success;
 
-      if(
-        typeof thisBooking.booked[date][hourBlock] == 'undefined'
-        &&
-        typeof thisBooking.bookingCacheObject[date][hourBlock] == 'undefined'
-      ){
-        thisBooking.bookingCacheObject[date][hourBlock] = [];
-        thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
-        success = true;
-      } else {
-        success = false;
-      }
-
-      return success;
-
-    }
   }
-  */
 
   updateDOM(){
     const thisBooking = this;
-    console.log(' ');
-    console.log(' === ');
-    console.log('updateDOM run.');
     thisBooking.date = thisBooking.datePicker.value;
-    // console.log('  Date:',thisBooking.date);
+    // console.log('updateDOM thisBooking.date',thisBooking.date);
     thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
 
     let allAvailable = false;
 
     if(
       typeof thisBooking.booked[thisBooking.date] == 'undefined'
+      ||
+      typeof thisBooking.booked[thisBooking.date][thisBooking.hour] == 'undefined' 
     ){
       allAvailable = true;
-    } else {
-      if(
-        typeof thisBooking.booked[thisBooking.date] != 'undefined'
-        &&
-        typeof thisBooking.booked[thisBooking.date][thisBooking.hour] == 'undefined' 
-      ){
-        allAvailable = true;
-      }
     }
 
-    console.log('updateDOM check:');
-    if(!allAvailable){ 
-      console.log('  Existing bookings at [date][hour]:',thisBooking.booked[thisBooking.date][thisBooking.hour]);
-    } else {
-      console.log('  booked[date][hour] is available.',);
-    }
-
-    console.log('  allAvailable:',allAvailable);
-    console.log('  Date:',thisBooking.date);
-    console.log('  Hour:',thisBooking.hour);
-    console.log('  Booked obj.:',thisBooking.booked);
+    // console.log(' === check == ');
+    // console.log('allAvailable:',allAvailable);
+    // console.log('Date:',thisBooking.date);
+    // console.log('Hour:',thisBooking.hour);
 
     for(let table of thisBooking.dom.tables){
-      // console.log('  updateDOM - table',table);
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
       if(!isNaN(tableId)){
         tableId = parseInt(tableId);
       }
-      // console.log('  updateDOM - tableId',tableId);
+
       if(
         !allAvailable
         &&
@@ -216,7 +177,7 @@ class Booking{
 
   render(booking){
     const thisBooking = this;
-    // console.log('render run.');
+
     /* generate HTML using templates.bookingWidget, no args */
     const generatedHTML = templates.bookingWidget();
     
@@ -244,27 +205,29 @@ class Booking{
 
   initWidgets(){
     const thisBooking = this;
-    // console.log('initWidgets run.');
+    console.log('initWidgets run.');
     thisBooking.peopleAmount = new AmountWidget(thisBooking.dom.peopleAmount);
     thisBooking.hoursAmount = new AmountWidget(thisBooking.dom.hoursAmount);
 
     thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
     thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);   
-
+    
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
-      console.log('initWigdets updated DOM.',);
     });
 
-    /* Add a listener to each table 
+    /* Add a listener to each table */
     for (let table of thisBooking.dom.tables) {
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
       table.addEventListener('click', function(){
         if (tableId != 'undefined') {
+          console.log('Clicked table ',tableId);
           thisBooking.clickToToggleBooking(tableId);
+        } else {
+          console.log('initWidgets - tableId is undefined.');
         }
       });
-    */
+    }
 
     /* Create object for temporary booking changes, to be posted to DB */
     
@@ -273,59 +236,60 @@ class Booking{
   /* === SUBTASK 11.3.1: Select and book or unselect a table by clicking === */
 
   /* This runs if a table is clicked: */
-  /*
+  /* // MAKE SURE TABLES CANNOT BE BOOKED on days when restaurant is closed, e.g. Mondays - flatpickrOptions.disable */
+
   clickToToggleBooking(tableId){
     const thisBooking = this;
-  
-    const bookingCache = {};
-    // eslint-disable-next-line no-unused-vars
-    let bookingAddSuccess = false;
+    thisBooking.newBookingCache = {};
     
-    for (let table of thisBooking.dom.tables){
-      const tableIdAttr = table.getAttribute(settings.booking.tableIdAttribute);
-      
-      thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
+    // Obtain the current value in INPUT box of widget HOURS and call it durationBooked
+    thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
+    // eslint-disable-next-line no-unused-vars
+    const durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
 
-      // console.log('thisBooking.hoursAmountWidget',thisBooking.hoursAmountWidget);
-      // The following is the actual value in INPUT box of widget HOURS 
-      const durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
+    // Check if the table clicked is available
+    thisBooking.date = thisBooking.datePicker.value;
+    thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
 
-      if (tableIdAttr == tableId){
-        console.log('Table ID found!',tableId);
+    for(let table of thisBooking.dom.tables){
+      let clickedTableId = table.getAttribute(settings.booking.tableIdAttribute);
+      if(!isNaN(clickedTableId)){
+        clickedTableId = parseInt(clickedTableId);
+      }
 
-        /* if this is NOT the table clicked ... 
-        if(
+      if (clickedTableId == tableId){
+        console.log('thisBooking.booked',thisBooking.booked);
+        console.log('thisBooking.date',thisBooking.date);
+        console.log('thisBooking.hour',thisBooking.hour);
+
+        if (
+          typeof thisBooking.booked[thisBooking.date] == 'undefined'
+          ||
+          // 1. If either no table is booked at this hour
+          typeof thisBooking.booked[thisBooking.date][thisBooking.hour] == 'undefined'
+          || // or, if a table is booked, it's not the table with tableId
           !thisBooking.booked[thisBooking.date][thisBooking.hour].includes(tableId)
-        ){
-          /* Change the class to Active 
+        )// TO DO: and the table has not been clicked previously 
+        { // ... then change it to active
           table.classList.add(classNames.booking.tableBooked);
-          // console.log('Table booked',tableId);
-          // console.log('Date booked:',thisBooking.datePicker.value);
-          // console.log('Hour booked:',thisBooking.hourPicker.value);
-          // console.log('Duration booked:',durationBooked);
-          
-          /* Check in the booked object if booking can be made and if it can, add it to the booking cache object 
-          bookingAddSuccess = thisBooking.addToBookingCache(bookingCache, thisBooking.datePicker.value, thisBooking.hourPicker.value, durationBooked, tableId);
-        
+          // ... and add it to newBookingCache
+          thisBooking.addToBookingCache(thisBooking.newBookingCache, thisBooking.date, thisBooking.hour, thisBooking.hoursAmountWidget.dom.input.value, tableId);
+          console.log('newBookingCache now contains:',thisBooking.newBookingCache);
         } else {
-          table.classList.remove(classNames.booking.tableBooked);
-          console.log('Table unbooked',tableId);
-        }         
+          console.log('clickToToggleBooking - could not add');
+        }
       }
       
+      // Check in the booked object if booking can be made and if it can, add it to the booking cache object 
+      
+      /**     Check table id, date, time, duration */
+      /**     Check if table is available (fetch) */
+      /*         If available, make active and add booking */
+      /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
+      /* If not available, add class table occupied (1s transition) */
+      // console.log('Run updateDOM now --',);
     }
-    */
 
-  /**     Check table id, date, time, duration */
-  /**     Check if table is available (fetch) */
-  /*         If available, make active and add booking */
-  /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
-  /* If not available, add class table occupied (1s transition) 
-    
-    }
-  */
-    
-  
+  }
 }
-
 export default Booking;
