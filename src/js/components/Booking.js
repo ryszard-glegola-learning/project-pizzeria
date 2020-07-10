@@ -16,7 +16,7 @@ class Booking{
 
   getData(){
     const thisBooking = this;
-    console.log('getData run.');
+    // console.log('getData run.');
     const startDateParam = settings.db.dateStartParamKey + '=' + utils.dateToStr(thisBooking.datePicker.minDate);
     const endDateParam = settings.db.dateEndParamKey + '=' + utils.dateToStr(thisBooking.datePicker.maxDate);
 
@@ -74,7 +74,7 @@ class Booking{
 
   parseData(bookings,eventsCurrent,eventsRepeat){
     const thisBooking = this;
-    console.log('parseData run.');
+    // console.log('parseData run.');
     thisBooking.booked = {};
 
     for(let item of bookings){
@@ -96,7 +96,7 @@ class Booking{
       }
     }
 
-    console.log('thisBooking.booked:',thisBooking.booked); // Shows the entire booked object, cool!
+    // console.log('thisBooking.booked:',thisBooking.booked); // Shows the entire booked object, cool!
 
     thisBooking.updateDOM();
   }
@@ -123,7 +123,7 @@ class Booking{
 
   /* addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
     const thisBooking = this;
-    console.log('addToBookingCache run.');
+    // console.log('addToBookingCache run.');
     let success = false;
   
     if(
@@ -158,14 +158,21 @@ class Booking{
 
   updateDOM(){
     const thisBooking = this;
-    console.log(' ');
-    console.log(' === ');
-    console.log('updateDOM run.');
+    // console.log(' ');
+    // console.log(' === ');
+    // console.log('updateDOM run.');
     thisBooking.date = thisBooking.datePicker.value;
     // console.log('  Date:',thisBooking.date);
     thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
 
     let allAvailable = false;
+
+    // Check date format - it has to be 10-char string. If not, convert to it
+    // console.log('  Date BEFORE:',thisBooking.date);
+    if (typeof thisBooking.date[0] == 'undefined'){
+      thisBooking.date = utils.dateToStr(thisBooking.date);
+    }
+    
 
     if(
       typeof thisBooking.booked[thisBooking.date] == 'undefined'
@@ -181,17 +188,17 @@ class Booking{
       }
     }
 
-    console.log('updateDOM check:');
+    // console.log('updateDOM check:');
     if(!allAvailable){ 
-      console.log('  Existing bookings at [date][hour]:',thisBooking.booked[thisBooking.date][thisBooking.hour]);
+      // console.log('  Existing bookings at [date][hour]:',thisBooking.booked[thisBooking.date][thisBooking.hour]);
     } else {
-      console.log('  booked[date][hour] is available.',);
+      // console.log('  booked[date][hour] is available.',);
     }
 
-    console.log('  allAvailable:',allAvailable);
-    console.log('  Date:',thisBooking.date);
-    console.log('  Hour:',thisBooking.hour);
-    console.log('  Booked obj.:',thisBooking.booked);
+    // console.log('  allAvailable:',allAvailable);
+    // console.log('  Date AFTER:',thisBooking.date);
+    // console.log('  Hour:',thisBooking.hour);
+    // console.log('  Booked obj.:',thisBooking.booked);
 
     for(let table of thisBooking.dom.tables){
       // console.log('  updateDOM - table',table);
@@ -253,7 +260,7 @@ class Booking{
 
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
-      console.log('initWigdets updated DOM.',);
+      // console.log('initWidgets - DOM updated.',);
     });
 
     /* Add a listener to each table 
@@ -291,7 +298,7 @@ class Booking{
       const durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
 
       if (tableIdAttr == tableId){
-        console.log('Table ID found!',tableId);
+        // console.log('Table ID found!',tableId);
 
         /* if this is NOT the table clicked ... 
         if(
@@ -309,7 +316,7 @@ class Booking{
         
         } else {
           table.classList.remove(classNames.booking.tableBooked);
-          console.log('Table unbooked',tableId);
+          // console.log('Table unbooked',tableId);
         }         
       }
       
