@@ -123,9 +123,6 @@ class Booking{
 
   updateDOM(){
     const thisBooking = this;
-    // console.log(' ');
-    // console.log(' === ');
-    // console.log('updateDOM run.');
     thisBooking.date = thisBooking.datePicker.value; // This date is imported from DatePicker, used to be in wrong format if PICK A DATE drop-down was used to select the date
     // console.log('updateDOM Date:',thisBooking.date); 
     thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
@@ -154,12 +151,6 @@ class Booking{
     }
 
     // console.log('updateDOM check:');
-    if(!allAvailable){ 
-      // console.log('  Existing bookings at [date][hour]:',thisBooking.booked[thisBooking.date][thisBooking.hour]);
-    } else {
-      // console.log('  booked[date][hour] is available.',);
-    }
-
     // console.log('  allAvailable:',allAvailable);
     // console.log('  Date AFTER:',thisBooking.date);
     // console.log('  Hour:',thisBooking.hour);
@@ -264,24 +255,24 @@ class Booking{
       // console.log('initWidgets - DOM updated.',);
     });
 
-    /* Add a listener to each table 
+    // Add a listener to each table 
     for (let table of thisBooking.dom.tables) {
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
       table.addEventListener('click', function(){
         if (tableId != 'undefined') {
-          thisBooking.clickToToggleBooking(tableId);
+          // thisBooking.clickToToggleBooking(tableId);
+          console.log('Table ' + tableId + ' clicked!');
         }
-      });
-    */
-
-    /* Create object for temporary booking changes, to be posted to DB */
-    
+      }); 
+    }
   }
+  
+  /* Create object for temporary booking changes, to be posted to DB */
 
   /* === SUBTASK 11.3.1: Select and book or unselect a table by clicking === */
 
-  /* This runs if a table is clicked: */
-  /*
+  /* This function runs if a table is clicked: */
+  
   clickToToggleBooking(tableId){
     const thisBooking = this;
   
@@ -323,17 +314,15 @@ class Booking{
       
     }
     */
-
-  /**     Check table id, date, time, duration */
-  /**     Check if table is available (fetch) */
-  /*         If available, make active and add booking */
-  /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
-  /* If not available, add class table occupied (1s transition) 
-    
+    /*     Check table id, date, time, duration */
+    /*     Check if table is available (fetch) */
+    /*         If available, make active and add booking */
+    /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
+    /* If not available, add class table occupied (1s transition)  */
+      
+      }
     }
-  */
-    
-  
+  }
 }
 
 export default Booking;
