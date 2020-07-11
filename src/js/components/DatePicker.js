@@ -38,7 +38,10 @@ class DatePicker extends BaseWidget{
         'firstDayOfWeek': 1 // start week on Monday
       },
       onChange: function(dateStr){
-        thisWidget.value = utils.addDays(utils.dateToStr(dateStr[0]),1); // Issue with Datepicker worked around
+        console.log('DatePicker input dateStr:',dateStr);
+        thisWidget.value = utils.addDays(utils.dateToStr(dateStr[0]),1); // Issue with Datepicker worked around:  one day added
+        thisWidget.value = utils.dateToStr(thisWidget.value); // Converts 'Sun Jul 19 2020 02:00:00 GMT+0200 (czas środkowoeuropejski letni)' to 2020-07-19
+        console.log('DatePicker output thisWidget.value:',thisWidget.value);        
         thisWidget.announce();
       },    
     };

@@ -121,58 +121,23 @@ class Booking{
     }
   }
 
-  /* addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
-    const thisBooking = this;
-    // console.log('addToBookingCache run.');
-    let success = false;
-  
-    if(
-      typeof thisBooking.booked[date] == 'undefined'
-      &&
-      typeof thisBooking.bookingCacheObject[date] == 'undefined'
-    ){
-      thisBooking.bookingCacheObject[date] = {};
-    }
-
-    const startHour = utils.hourToNumber(hour);
-
-    for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
-
-      if(
-        typeof thisBooking.booked[date][hourBlock] == 'undefined'
-        &&
-        typeof thisBooking.bookingCacheObject[date][hourBlock] == 'undefined'
-      ){
-        thisBooking.bookingCacheObject[date][hourBlock] = [];
-        thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
-        success = true;
-      } else {
-        success = false;
-      }
-
-      return success;
-
-    }
-  }
-  */
-
   updateDOM(){
     const thisBooking = this;
     // console.log(' ');
     // console.log(' === ');
     // console.log('updateDOM run.');
-    thisBooking.date = thisBooking.datePicker.value;
-    // console.log('  Date:',thisBooking.date);
+    thisBooking.date = thisBooking.datePicker.value; // This date is imported from DatePicker, used to be in wrong format if PICK A DATE drop-down was used to select the date
+    // console.log('updateDOM Date:',thisBooking.date); 
     thisBooking.hour = utils.hourToNumber(thisBooking.hourPicker.value);
 
     let allAvailable = false;
 
-    // Check date format - it has to be 10-char string. If not, convert to it
-    // console.log('  Date BEFORE:',thisBooking.date);
+    /*
+    // This was meant to check date format - it had to be 10-char string. If not, convert to it. Now this is no longer needed:
     if (typeof thisBooking.date[0] == 'undefined'){
       thisBooking.date = utils.dateToStr(thisBooking.date);
     }
-    
+    */
 
     if(
       typeof thisBooking.booked[thisBooking.date] == 'undefined'
@@ -220,7 +185,6 @@ class Booking{
     }
   }
 
-
   render(booking){
     const thisBooking = this;
     // console.log('render run.');
@@ -248,6 +212,43 @@ class Booking{
     
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
   }
+
+  
+  /* addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
+    const thisBooking = this;
+    // console.log('addToBookingCache run.');
+    let success = false;
+  
+    if(
+      typeof thisBooking.booked[date] == 'undefined'
+      &&
+      typeof thisBooking.bookingCacheObject[date] == 'undefined'
+    ){
+      thisBooking.bookingCacheObject[date] = {};
+    }
+
+    const startHour = utils.hourToNumber(hour);
+
+    for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
+
+      if(
+        typeof thisBooking.booked[date][hourBlock] == 'undefined'
+        &&
+        typeof thisBooking.bookingCacheObject[date][hourBlock] == 'undefined'
+      ){
+        thisBooking.bookingCacheObject[date][hourBlock] = [];
+        thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
+        success = true;
+      } else {
+        success = false;
+      }
+
+      return success;
+
+    }
+  }
+  */
+
 
   initWidgets(){
     const thisBooking = this;
