@@ -1,3 +1,12 @@
+/*
+
+To-dos: 
+- add one more arg to makeBooked to use it also to populate the bookingCache object
+- if this can't be done, create new function similar to makeBooked to create that object
+- add a check that makes adding the new booking dependent on bookingDuration
+
+*/
+
 import {select, templates, settings, classNames} from '../settings.js'; 
 import {utils} from '../utils.js';
 import AmountWidget from './AmountWidget.js';
@@ -204,43 +213,6 @@ class Booking{
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
   }
 
-  
-  /* addToBookingCache(bookingCacheObject, date, hour, duration, tableId){
-    const thisBooking = this;
-    // console.log('addToBookingCache run.');
-    let success = false;
-  
-    if(
-      typeof thisBooking.booked[date] == 'undefined'
-      &&
-      typeof thisBooking.bookingCacheObject[date] == 'undefined'
-    ){
-      thisBooking.bookingCacheObject[date] = {};
-    }
-
-    const startHour = utils.hourToNumber(hour);
-
-    for(let hourBlock = startHour; hourBlock < startHour + duration; hourBlock += 0.5){
-
-      if(
-        typeof thisBooking.booked[date][hourBlock] == 'undefined'
-        &&
-        typeof thisBooking.bookingCacheObject[date][hourBlock] == 'undefined'
-      ){
-        thisBooking.bookingCacheObject[date][hourBlock] = [];
-        thisBooking.bookingCacheObject[date][hourBlock].push(tableId);
-        success = true;
-      } else {
-        success = false;
-      }
-
-      return success;
-
-    }
-  }
-  */
-
-
   initWidgets(){
     const thisBooking = this;
     // console.log('initWidgets run.');
@@ -260,7 +232,7 @@ class Booking{
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
       table.addEventListener('click', function(){
         if (tableId != 'undefined') {
-          // thisBooking.clickToToggleBooking(tableId);
+          thisBooking.clickToToggleBooking(tableId);
           console.log('Table ' + tableId + ' clicked!');
         }
       }); 
@@ -277,35 +249,63 @@ class Booking{
     const thisBooking = this;
   
     const bookingCache = {};
-    // eslint-disable-next-line no-unused-vars
-    let bookingAddSuccess = false;
     
     for (let table of thisBooking.dom.tables){
-      const tableIdAttr = table.getAttribute(settings.booking.tableIdAttribute);
-      
+      // Check if this table is the table clicked - passed to clickToToggleBooking in tableId
+      const tableIdAttr = table.getAttribute(settings.booking.tableIdAttribute);      
+
+      // Check the duration of booking requested
       thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
 
-      // console.log('thisBooking.hoursAmountWidget',thisBooking.hoursAmountWidget);
       // The following is the actual value in INPUT box of widget HOURS 
+      // eslint-disable-next-line no-unused-vars
       const durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
 
       if (tableIdAttr == tableId){
-        // console.log('Table ID found!',tableId);
+        console.log('thisBooking.booked[thisBooking.date] is',thisBooking.booked[thisBooking.date]);
+        console.log('thisBooking.booked[thisBooking.date][thisBooking.hour] is',thisBooking.booked[thisBooking.date][thisBooking.hour]);
 
-        /* if this is NOT the table clicked ... 
         if(
-          !thisBooking.booked[thisBooking.date][thisBooking.hour].includes(tableId)
-        ){
-          /* Change the class to Active 
+          typeof thisBooking.booked[thisBooking.date]=='undefined'
+          ||
+          typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined'
+          ){
+          console.log('Mamy undefined w 1. warunku');
+          // Check in the booked object if booking can be made and if it can:
+          // * change the class to Active 
           table.classList.add(classNames.booking.tableBooked);
+          // * add it to the booking cache object 
+          bookingCache[thisBooking.date] = thisBooking.date;
+          bookingCache[thisBooking.date] = [];
+          bookingCache[thisBooking.date].push(thisBooking.hour);
+
+          // thisBooking.addToBookingCache(bookingCache, thisBooking.datePicker.value, thisBooking.hourPicker.value, durationBooked, tableId);
+
           // console.log('Table booked',tableId);
           // console.log('Date booked:',thisBooking.datePicker.value);
           // console.log('Hour booked:',thisBooking.hourPicker.value);
           // console.log('Duration booked:',durationBooked);
-          
-          /* Check in the booked object if booking can be made and if it can, add it to the booking cache object 
-          bookingAddSuccess = thisBooking.addToBookingCache(bookingCache, thisBooking.datePicker.value, thisBooking.hourPicker.value, durationBooked, tableId);
+
+          console.log('bookingCache:',bookingCache);
         
+        } else if (!thisBooking.booked[thisBooking.date][thisBooking.hour].includes(tableId)){
+          console.log('Drugi warunek sprawdzany!');
+          // Check in the booked object if booking can be made and if it can:
+          // * change the class to Active 
+          table.classList.add(classNames.booking.tableBooked);
+          // * add it to the booking cache object 
+          bookingCache[thisBooking.date] = thisBooking.date;
+          bookingCache[thisBooking.date] = [];
+          bookingCache[thisBooking.date].push(thisBooking.hour);
+
+          // thisBooking.addToBookingCache(bookingCache, thisBooking.datePicker.value, thisBooking.hourPicker.value, durationBooked, tableId);
+
+          // console.log('Table booked',tableId);
+          // console.log('Date booked:',thisBooking.datePicker.value);
+          // console.log('Hour booked:',thisBooking.hourPicker.value);
+          // console.log('Duration booked:',durationBooked);
+
+          console.log('bookingCache:',bookingCache);
         } else {
           table.classList.remove(classNames.booking.tableBooked);
           // console.log('Table unbooked',tableId);
@@ -313,16 +313,16 @@ class Booking{
       }
       
     }
-    */
+    
     /*     Check table id, date, time, duration */
     /*     Check if table is available (fetch) */
     /*         If available, make active and add booking */
     /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
     /* If not available, add class table occupied (1s transition)  */
       
-      }
-    }
+  
   }
+
 }
 
 export default Booking;
