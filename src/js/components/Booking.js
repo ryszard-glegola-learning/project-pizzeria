@@ -211,6 +211,8 @@ class Booking{
     thisBooking.dom.hourPicker = thisBooking.dom.wrapper.querySelector(select.widgets.hourPicker.wrapper); 
     
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
+
+    thisBooking.dom.form = thisBooking.dom.wrapper.querySelector(select.booking.form);
   }
 
   initWidgets(){
@@ -220,12 +222,15 @@ class Booking{
     thisBooking.hoursAmount = new AmountWidget(thisBooking.dom.hoursAmount);
 
     thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
-    thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);   
+    thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);
 
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
       // console.log('initWidgets - DOM updated.',);
     });
+
+    thisBooking.bookingCache = {};
+    console.log('INIT bookingCache:',thisBooking.bookingCache);
 
     // Add a listener to each table 
     for (let table of thisBooking.dom.tables) {
@@ -233,24 +238,92 @@ class Booking{
       table.addEventListener('click', function(){
         if (tableId != 'undefined') {
           thisBooking.clickToToggleBooking(tableId);
-          console.log('clickToToggleBooking ran for table', tableId);
+          // console.log('clickToToggleBooking ran for table', tableId);
           // console.log('Table ' + tableId + ' clicked!');
         }
-      }); 
+      });    
     }
+
+    // Add a listener to BOOK TABLE button
+    thisBooking.dom.form.addEventListener('submit',function(event){
+      event.preventDefault();
+      console.log('BOOK TABLE clicked');
+      // thisBooking.sendBookingToAPI(); // This method does not exist yet
+    });   
+
+    console.log('INIT END bookingCache:',thisBooking.bookingCache);
   }
   
   /* Create object for temporary booking changes, to be posted to DB */
 
   /* === SUBTASK 11.3.1: Select and book or unselect a table by clicking === */
 
-  /* This function runs if a table is clicked: */
+  /*  clickToToggleBooking is a function runs if a table is clicked.
+      For the specific table clicked, it:
+      [DONE] - checks if it exists in 'booked' OBJ. 
+      -- If it does, it does nothing.
+      -- If it doesn't, it checks if it exists in 'b-cache' OBJ.
+      ---  If it does, it removes it from 'b-cache' OBJ. AND removes class 'tobebooked'
+      ---  If it does not, it adds it to 'b-cache' OBJ. AND adds class 'tobebooked'
+  */  
   
   clickToToggleBooking(tableId){
     const thisBooking = this;
-    thisBooking.bookingCache = {};
 
-    for (let table of thisBooking.dom.tables){
+    // A few initial checks and set-ups
+
+    console.log('  * * *  ');
+    console.log(' clickToToggleBooking started for table ',tableId);
+    // Check the duration of booking requested AT THE MOMENT when the table was clicked
+    thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
+    let durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
+    // Make sure tableId is numeric
+    if(!isNaN(tableId)){
+      tableId = parseInt(tableId);
+    }
+
+    // checks if it exists in 'booked' OBJ. 
+
+    //  ############### CASE 1 ###############  
+    //  No table is booked in 'booked' OBJ at this date OR hour, 
+
+    if(
+      (
+      typeof thisBooking.booked[thisBooking.date]=='undefined'
+      ||
+      typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined') 
+      || 
+      (
+      thisBooking.booked[thisBooking.date][thisBooking.hour].indexOf(tableId) == -1
+      )
+    )
+    {
+      console.log(' - - - ',);
+      console.log('Either no table booked or OTHER table booked:',);
+      console.log('tableId is',tableId);
+      
+      if(
+        typeof thisBooking.booked[thisBooking.date]=='undefined'
+        ||
+        typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined'){ 
+        console.log('... no booked table exists in booked OBJ'); 
+        // OK, let's remember thisBooking.booked[thisBooking.date][thisBooking.hour] won't work and let's look at b-cache OBJ now.
+      } else {
+        // OK, let's remember the booked table cannot be styled as toBeBooked and cannot be added to b-cache OBJ and let's move on to look at b-cache OBJ now.
+        console.log('... a booked table exists in booked OBJ'); 
+        let tableBookedIndex = thisBooking.booked[thisBooking.date][thisBooking.hour].indexOf(tableId); 
+        console.log('booked[date][hour] is ',thisBooking.booked[thisBooking.date][thisBooking.hour]);
+        console.log('tableBookedIndex is ',tableBookedIndex);
+      }
+
+      thisBooking.bookingCache = {};
+    } else {
+      console.log('You clicked a table that was booked',);
+    }
+
+    
+    /*
+      //for (let table of thisBooking.dom.tables){
       // Pass table ID to clickToToggleBooking in tableId
       const tableIdAttr = table.getAttribute(settings.booking.tableIdAttribute);      
 
@@ -262,21 +335,20 @@ class Booking{
 
       // Check if this table is the table clicked - and do it all for the table clicked only
       if (tableIdAttr == tableId){
-        console.log('booked[date] is',thisBooking.booked[thisBooking.date]);
-        console.log('booked[date][hour] is',thisBooking.booked[thisBooking.date][thisBooking.hour]);
 
-        /*  ############### CASE 1 ###############  */
-        /* If no table is booked at this date OR hour, 
-        objects and arrays will have to be created */
+        //  ############### CASE 1 ###############  
+        // If no table is booked at this date OR hour, 
+        objects and arrays will have to be created 
 
         if(
           typeof thisBooking.booked[thisBooking.date]=='undefined'
           ||
           typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined'
         ){
-          console.log('CASE 1 - no booking exists');
+          console.log(' = = = = = = = ');
+          console.log('CASE 1 - no booking exists on DATE or HOUR');
           
-          // Toggle the table colour
+          // Toggle the table colour - CHANGE this!
           const tableClassesNow = table.classList.value; // ha, this returns a STRING
           if (tableClassesNow.includes(classNames.booking.tableToBeBooked)){
             table.classList.remove(classNames.booking.tableToBeBooked);
@@ -288,9 +360,6 @@ class Booking{
 
           // * add it to the booking cache object
           // 1. If no booking exists on this date, create an OBJECT bookingCache[date]
-
-          console.log('Date:',thisBooking.date);
-          console.log('Hour:',thisBooking.hour);
           
 
           if (  // This will be TRUE if no booking exists on this DATE
@@ -340,9 +409,9 @@ class Booking{
           // console.log('Duration booked:',durationBooked);
 
           
-          /*  ############### CASE 2 ###############  */
+          //  ############### CASE 2 ############### 
 
-          /* If a table is booked at this date AND hour, simply add another booking */
+          // If a table is booked at this date AND hour, simply add another booking 
 
 
         } else if (
@@ -360,7 +429,7 @@ class Booking{
           }
 
           // Check in the booked object if booking can be made and if it can:
-          // * add it to the booking cache object 
+          // add it to the booking cache object 
           thisBooking.bookingCache[thisBooking.date] = thisBooking.date;
           console.log('1. bookingCache: ',thisBooking.bookingCache);
           console.log('bookingCache[date]',thisBooking.bookingCache[thisBooking.date]);
@@ -388,12 +457,14 @@ class Booking{
       
     }
     
-    /*     Check table id, date, time, duration */
-    /*     Check if table is available (fetch) */
-    /*         If available, make active and add booking */
-    /* If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive */
-    /* If not available, add class table occupied (1s transition)  */
+    //     Check table id, date, time, duration 
+    //     Check if table is available (fetch) 
+    //         If available, make active and add booking 
+    // If clicked (in same browser session) but available (not in 'bookings') because clicked to book in same browser session, make inactive 
+    // If not available, add class table occupied (1s transition) 
       
+    */
+
   
   }
 
