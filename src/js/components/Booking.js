@@ -298,19 +298,21 @@ class Booking{
       console.log('Either no table booked or OTHER table booked:',);
       console.log('tableId is',tableId);
       
+      /* // The entire following code only checks which part of the IF above was true and IS NOT NEEDED for the script to work 
       if(
         typeof thisBooking.booked[thisBooking.date]=='undefined'
         ||
         typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined'){ 
         console.log('... no booked table exists in booked OBJ'); 
-        // OK, let's remember thisBooking.booked[thisBooking.date][thisBooking.hour] won't work and that ANY table can be added to b-cache OBJ and let's look at b-cache OBJ now.
+        // OK, let's remember thisBooking.booked[thisBooking.date][thisBooking.hour] won't work and that ANY table can be styled as toBeBooked and added to b-cache OBJ and let's look at b-cache OBJ now.
         // Add thi
       } else {
-        // OK, let's remember the booked table cannot be styled as toBeBooked and cannot be added to b-cache OBJ and let's move on to look at b-cache OBJ now.
+        // OK, let's remember the booked table(s) cannot be styled as toBeBooked and cannot be added to b-cache OBJ and let's move on to look at b-cache OBJ now.
         console.log('... a booked table exists in booked OBJ'); 
         console.log('booked[date][hour] is ',thisBooking.booked[thisBooking.date][thisBooking.hour]);
       }
-      // 
+      */
+       
     } else {
       console.log('You clicked a table that was booked',);
       // Do nothing!
