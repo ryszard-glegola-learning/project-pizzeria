@@ -261,7 +261,7 @@ class Booking{
   /*  clickToToggleBooking is a function runs if a table is clicked.
       For the specific table clicked, it:
       [DONE] - checks if it exists in 'booked' OBJ. 
-      -- If it does, it does nothing.
+      [DONE]-- If it does, it does nothing.
       -- If it doesn't, it checks if it exists in 'b-cache' OBJ.
       ---  If it does, it removes it from 'b-cache' OBJ. AND removes class 'tobebooked'
       ---  If it does not, it adds it to 'b-cache' OBJ. AND adds class 'tobebooked'
@@ -270,19 +270,16 @@ class Booking{
   clickToToggleBooking(tableId){
     const thisBooking = this;
 
-    // A few initial checks and set-ups
+    console.log(' # # # # # ');
 
-    console.log('  * * *  ');
-    console.log(' clickToToggleBooking started for table ',tableId);
-    // Check the duration of booking requested AT THE MOMENT when the table was clicked
+    // A few initial checks and set-ups:
+    // 1. Check the duration of booking requested AT THE MOMENT when the table was clicked
     thisBooking.hoursAmountWidget = new AmountWidget(thisBooking.dom.hoursAmount,settings.booking.hoursAmountDefault);
     let durationBooked = thisBooking.hoursAmountWidget.dom.input.value;
-    // Make sure tableId is numeric
+    // 2. Make sure tableId is numeric
     if(!isNaN(tableId)){
       tableId = parseInt(tableId);
     }
-
-    // checks if it exists in 'booked' OBJ. 
 
     //  ############### CASE 1 ###############  
     //  No table is booked in 'booked' OBJ at this date OR hour, 
@@ -298,7 +295,6 @@ class Booking{
       )
     )
     {
-      console.log(' - - - ',);
       console.log('Either no table booked or OTHER table booked:',);
       console.log('tableId is',tableId);
       
@@ -307,18 +303,17 @@ class Booking{
         ||
         typeof thisBooking.booked[thisBooking.date][thisBooking.hour]=='undefined'){ 
         console.log('... no booked table exists in booked OBJ'); 
-        // OK, let's remember thisBooking.booked[thisBooking.date][thisBooking.hour] won't work and let's look at b-cache OBJ now.
+        // OK, let's remember thisBooking.booked[thisBooking.date][thisBooking.hour] won't work and that ANY table can be added to b-cache OBJ and let's look at b-cache OBJ now.
+        // Add thi
       } else {
         // OK, let's remember the booked table cannot be styled as toBeBooked and cannot be added to b-cache OBJ and let's move on to look at b-cache OBJ now.
         console.log('... a booked table exists in booked OBJ'); 
-        let tableBookedIndex = thisBooking.booked[thisBooking.date][thisBooking.hour].indexOf(tableId); 
         console.log('booked[date][hour] is ',thisBooking.booked[thisBooking.date][thisBooking.hour]);
-        console.log('tableBookedIndex is ',tableBookedIndex);
       }
-
-      thisBooking.bookingCache = {};
+      // 
     } else {
       console.log('You clicked a table that was booked',);
+      // Do nothing!
     }
 
     
