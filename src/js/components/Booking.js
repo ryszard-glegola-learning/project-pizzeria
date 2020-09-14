@@ -148,11 +148,9 @@ class Booking{
     //Use 'do while'-loop to check if table exists in array and remove it
 
     let bookingExists = true;
-    let runNo = 0;
-    let indexOfTableInHourArray = bookingObject[date][hourArrayName].indexOf(table)
+    let indexOfTableInHourArray = bookingObject[date][hourArrayName].indexOf(table);
 
     do {
-      runNo++;
       if (typeof bookingObject[date][hourArrayName] != 'undefined'){
         indexOfTableInHourArray = bookingObject[date][hourArrayName].indexOf(table);
         if (bookingObject[date][hourArrayName].indexOf(table) == -1) {
@@ -162,7 +160,7 @@ class Booking{
           indexOfTableInHourArray = bookingObject[date][hourArrayName].indexOf(table);
         }
       } else {
-      bookingExists = false;
+        bookingExists = false;
       }
 
 
