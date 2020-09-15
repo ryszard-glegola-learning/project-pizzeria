@@ -72,11 +72,12 @@ class Booking{
         ]);
       })
       .then(function([bookings, eventsCurrent, eventsRepeat]){
-        // console.log('Done!');
-        // console.log(' - bookings:',bookings);        
+        console.log('Bookings imported!');
+        console.log(' - bookings:',bookings);        
         // console.log(' - curr. events:',eventsCurrent);
         // console.log(' - recurr. events:',eventsRepeat);
         // console.log('... and that\'s all, folks!');
+        // console.log(' # # # # # ');
         thisBooking.parseData(bookings,eventsCurrent,eventsRepeat);
       });
   }
@@ -318,7 +319,7 @@ class Booking{
     // Add a listener to BOOK TABLE button
     thisBooking.dom.form.addEventListener('submit',function(event){
       event.preventDefault();
-      console.log('BOOK TABLE clicked');
+      // console.log('BOOK TABLE clicked');
       thisBooking.sendNewBooking(); 
     });
 
@@ -474,29 +475,36 @@ class Booking{
   sendNewBooking(){
     const thisBooking = this;
     const url = settings.db.url + '/' + settings.db.booking;
-    const payload = thisBooking.newBookingsPayload;
 
-    console.log('bookingCache now:', thisBooking.bookingCache);
-    console.log('newBookingsPayload now:', thisBooking.newBookingsPayload);
-    console.log('payload',payload);
-    console.log(' == ORDER SUBMITTED! == ');
-    
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    };
-
-    fetch(url, options)
-      .then(function(response){
-        return response.json();
-      }).then(function(parsedResponse){
-        console.log('"ParsedResponse" received in Booking.sendNewBooking:',parsedResponse);
-      });
+    for (let singleBooking in thisBooking.newBookingsPayload){
+      const payload = {};
+      payload['date'] = thisBooking.newBookingsPayload[singleBooking]['date'];
+      payload['hour'] = utils.numberToHour(thisBooking.newBookingsPayload[singleBooking]['hour']);
+      payload['repeat'] = thisBooking.newBookingsPayload[singleBooking]['repeat'];
+      payload['table'] = thisBooking.newBookingsPayload[singleBooking]['table'];        
+      payload['duration'] = thisBooking.newBookingsPayload[singleBooking]['duration'];
+      payload['ppl'] = thisBooking.newBookingsPayload[singleBooking]['ppl'];
+      payload['starters'] = thisBooking.newBookingsPayload[singleBooking]['starters'];      
+      
+      // console.log('payload',payload);
+      console.log('Payload submitted:',payload);
+      
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      };
+  
+      fetch(url, options)
+        .then(function(response){
+          return response.json();
+        }).then(function(parsedResponse){
+          console.log('"ParsedResponse" received in Booking.sendNewBooking:',parsedResponse);
+        });
+    }
   }
-
 }
 
 export default Booking;
