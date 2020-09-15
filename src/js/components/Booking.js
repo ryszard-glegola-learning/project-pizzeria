@@ -17,7 +17,7 @@ import HourPicker from './HourPicker.js';
 class Booking{
   constructor(wrapper){
     const thisBooking = this;
-
+    thisBooking.starters = [];
     thisBooking.render(wrapper);
     thisBooking.initWidgets();
     thisBooking.getData();
@@ -83,7 +83,6 @@ class Booking{
 
   parseData(bookings,eventsCurrent,eventsRepeat){
     const thisBooking = this;
-    // console.log('parseData run.');
     thisBooking.booked = {};
 
     for(let item of bookings){
@@ -131,13 +130,11 @@ class Booking{
   
       bookingObject[date][hourBlock].push(table);
 
-    }
+    } 
   }
 
   unBook (bookingObject, date, hour, table){
     // This method removes occurrences of specific 'table' that START at 'hour'
-    // const thisBooking = this;
-    // d run.');
     // Logic: 
     // 1. start with 'hour'
     let hourArrayName = hour;
@@ -287,6 +284,9 @@ class Booking{
     thisBooking.dom.tables = thisBooking.dom.wrapper.querySelectorAll(select.booking.tables);
 
     thisBooking.dom.form = thisBooking.dom.wrapper.querySelector(select.booking.form);
+
+    thisBooking.dom.starters = thisBooking.dom.wrapper.querySelectorAll(select.booking.starter);
+    // console.log('thisBooking.dom:',thisBooking.dom);
   }
 
   initWidgets(){
@@ -294,17 +294,15 @@ class Booking{
     // console.log('initWidgets run.');
     thisBooking.peopleAmount = new AmountWidget(thisBooking.dom.peopleAmount);
     thisBooking.hoursAmount = new AmountWidget(thisBooking.dom.hoursAmount);
-
     thisBooking.datePicker = new DatePicker(thisBooking.dom.datePicker);
     thisBooking.hourPicker = new HourPicker(thisBooking.dom.hourPicker);
 
     thisBooking.dom.wrapper.addEventListener('updated', function(){
       thisBooking.updateDOM();
-      // console.log('initWidgets - DOM updated.',);
+    // Q2P: not sure what this does  
     });
 
     thisBooking.bookingCache = {};
-    
     // Add a listener to each table 
     for (let table of thisBooking.dom.tables) {
       let tableId = table.getAttribute(settings.booking.tableIdAttribute);
@@ -321,13 +319,14 @@ class Booking{
     thisBooking.dom.form.addEventListener('submit',function(event){
       event.preventDefault();
       console.log('BOOK TABLE clicked');
-      // thisBooking.sendBookingToAPI(); // This method does not exist yet
+      thisBooking.sendNewBooking(); 
     });
 
     // Add a listener to PICK A TIME slider to wipe bookingCache when time is changed
     thisBooking.dom.datePicker.addEventListener('updated',function(event){
       event.preventDefault();
       thisBooking.bookingCache = {};
+      thisBooking.newBookingsPayload = {};
       // console.log('... and table selection removed.',);
     });
 
@@ -335,25 +334,63 @@ class Booking{
     thisBooking.dom.hourPicker.addEventListener('updated',function(event){
       event.preventDefault();
       thisBooking.bookingCache = {};
+      thisBooking.newBookingsPayload = {};
       // console.log('... and table selection removed.',);
     });
+    
+    /* Initialise a separate object that will be used to recoed data that will be sent to API at the end.
+    Structure:
 
+    {
+      {Table 1: 
+        {
+        "date": "2020-07-21",
+        "hour": "12:30",
+        "table": 1,
+        "repeat": false,
+        "duration": 4,
+        "ppl": 3,
+        "starters": [
+          "water",
+          "bread"
+        ],
+        "id": 33
+        }
+      },      
+      {Table 2: 
+        {
+        "date": "2020-07-21",
+        "hour": "12:30",
+        "table": 1,
+        "repeat": false,
+        "duration": 4,
+        "ppl": 3,
+        "starters": [
+          "water",
+          "bread"
+        ],
+        "id": 33
+        }
+      }
+    }
+
+    */  
+    thisBooking.newBookingsPayload = {};
   }
-  
-  /* Create object for temporary booking changes, to be posted to DB */
 
-  /* === SUBTASK 11.3.1: Select and book or unselect a table by clicking === */
-
-  /*  clickToToggleBooking is a function runs if a table is clicked.
-      For the specific table clicked, it:
-      [DONE] - 1. checks if it exists in 'booked' OBJ. 
-      [DONE]-- 1.Y If it does, it does nothing.
-      [DONE] -- 1.N If it doesn't, it checks if it exists in 'b-cache' OBJ.
-      [DONE]  1.N.Y If it does, it removes it from 'b-cache' OBJ. AND removes class 'tobebooked'
-      ---  1.N.N If it does not, it adds it to 'b-cache' OBJ. AND adds class 'tobebooked'
-  */  
   
   clickToToggleBooking(tableId){
+
+    /*  clickToToggleBooking is a function runs if a table is clicked.
+    For the specific table clicked, it:
+    [DONE] 1. checks if it exists in 'booked' OBJ. 
+    [DONE] 1.Y If it does, it does nothing.
+    [DONE] 1.N If it doesn't, it checks if it exists in 'b-cache' OBJ.
+    [DONE] 1.N.N If it does not, it adds it to 'b-cache' OBJ. AND adds class 'tobebooked' and adds a table with its details to the payload OBJ
+    [DONE] 1.N.Y If it does, it removes it from 'b-cache' OBJ. AND removes class 'tobebooked' and removes the table with its details from the payload OBJ
+    [IN PROGRESS] 2. Send to API
+    */  
+
     const thisBooking = this;
 
     // A few initial checks and set-ups:
@@ -397,6 +434,27 @@ class Booking{
         // AND adds class 'tobebooked'
         thisBooking.updateDOM();
         // console.log('You have just booked table', tableId);
+        // ... and updates thisBooking.newBookingsPayload OBJ that will be sent to API:
+        // thisBooking.tablesBooked
+        // thisBooking.newBookingsPayload['table'] = tableId;
+        thisBooking.newBookingsPayload[tableId] = {};
+        thisBooking.newBookingsPayload[tableId]['date'] = thisBooking.date;
+        thisBooking.newBookingsPayload[tableId]['hour'] = thisBooking.hour;
+        thisBooking.newBookingsPayload[tableId]['repeat'] = false;
+        thisBooking.newBookingsPayload[tableId]['table'] = tableId;        
+        thisBooking.newBookingsPayload[tableId]['duration'] = durationBooked;
+        thisBooking.newBookingsPayload[tableId]['ppl'] = thisBooking.peopleAmount.value;
+        thisBooking.newBookingsPayload[tableId]['starters'] = [];
+        // console.log('newBookingsPayload + 1:',thisBooking.newBookingsPayload);
+        for (let starterNode of thisBooking.dom.starters) {
+          let starterName = starterNode.value;
+          let starterIsSelected = false; 
+          starterIsSelected = starterNode.checked;
+          if (starterIsSelected){
+            thisBooking.newBookingsPayload[tableId]['starters'].push(starterName);
+          }
+        }        
+
       } else {    
         // 1.2.Y If it does, it removes it from 'b-cache' OBJ. ...
         thisBooking.unBook(thisBooking.bookingCache, thisBooking.date, thisBooking.hour, tableId);
@@ -404,14 +462,41 @@ class Booking{
         thisBooking.updateDOM();
         // console.log('You have just UNbooked table', tableId);
         // console.log('bookingCache now is', thisBooking.bookingCache);
+        delete thisBooking.newBookingsPayload[tableId];
+        // console.log('newBookingsPayload - 1:',thisBooking.newBookingsPayload);
       }
     } else {     //  1.Y If no table is booked in 'booked' OBJ at this date OR hour, 
       // console.log('(1.A) You clicked a table that was booked. Nothing happens.');
       // (1.Y) Do nothing!
     }
+  }
+
+  sendNewBooking(){
+    const thisBooking = this;
+    const url = settings.db.url + '/' + settings.db.booking;
+    const payload = thisBooking.newBookingsPayload;
 
     console.log('bookingCache now:', thisBooking.bookingCache);
+    console.log('newBookingsPayload now:', thisBooking.newBookingsPayload);
+    console.log('payload',payload);
+    console.log(' == ORDER SUBMITTED! == ');
+    
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+
+    fetch(url, options)
+      .then(function(response){
+        return response.json();
+      }).then(function(parsedResponse){
+        console.log('"ParsedResponse" received in Booking.sendNewBooking:',parsedResponse);
+      });
   }
+
 }
 
 export default Booking;

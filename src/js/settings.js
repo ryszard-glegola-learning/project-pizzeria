@@ -64,6 +64,8 @@ export const select = {
     hoursAmount: '.hours-amount',
     tables: '.floor-plan .table',
     form: '.booking-form',
+    starter: '[name="starter"]',
+    starterSelected: '.booking-options input.checked',
     formSubmit: '.booking-form [type="submit"]',
   },
   nav: {
