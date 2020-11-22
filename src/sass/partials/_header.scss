@@ -7,6 +7,9 @@
     position: relative;
   }
 
+  &.home {
+    padding-bottom: ($base-size * 5);
+  }
 }
 
 .logo {
@@ -55,6 +58,10 @@
       background: lighten($color-dark, 75%);
     }
 
+  }
+
+  &.hidden {
+    display: none;
   }
 
 }

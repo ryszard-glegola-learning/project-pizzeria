@@ -73,7 +73,7 @@ class Booking{
       })
       .then(function([bookings, eventsCurrent, eventsRepeat]){
         console.log('Bookings imported!');
-        console.log(' - bookings:',bookings);        
+        // console.log(' - bookings:',bookings);        
         // console.log(' - curr. events:',eventsCurrent);
         // console.log(' - recurr. events:',eventsRepeat);
         // console.log('... and that\'s all, folks!');

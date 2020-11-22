@@ -11,11 +11,14 @@ export const select = {
     cart: '#cart',
     pages: '#pages',
     booking: '.booking-wrapper',
+    nav: '.main-nav',
+    header: '.header',
   },
   all: {
     menuProducts: '#product-list > .product',
     menuProductsActive: '#product-list > .product.active',
     formInputs: 'input, select',
+    links: 'a',
   },
   menuProduct: {
     clickable: '.product__header',
@@ -80,6 +83,7 @@ export const classNames = {
   },
   cart: {
     wrapperActive: 'active',
+    hidden: 'hidden',
   },
   booking: {
     loading: 'loading',
@@ -88,10 +92,14 @@ export const classNames = {
   },
   nav: {
     active: 'active',
+    hidden: 'hidden',
   },
   pages: {
     active: 'active',
   },
+  header: {
+    home: 'home',
+  },  
 };
 
 export const settings = {
@@ -126,6 +134,9 @@ export const settings = {
     notRepeatParam: 'repeat=false',
     repeatParam: 'repeat_ne=false',
   },
+  home: {
+    includeHTMLattribute: 'HTMLFileIncludedHere'
+  }
 };
 
 export const templates = {
