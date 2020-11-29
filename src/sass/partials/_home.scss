@@ -1,53 +1,298 @@
-.home-page {
-  background-color: #fff;
-  margin: 42px auto 0 auto;
+/* CLEARFIX METHOD */
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
 }
+
+.home-page {
+  margin: ($base-size * 3.5) auto;
+  padding: ($base-size * 6) ($base-size * 4);
+  background: $color-light;
+  border-bottom: 1px solid lighten($color-dark, 70%);
+  border-radius: $radius;  
+}
+
+.header.home {  /* Q2P How does this styke work */
+  padding-bottom: $base-size * 5;
+}
+
+
+.section-upper {
+  width: calc(100% + 4px);
+  margin: 0;
+  padding: 0;
+  background-color: $color-light;
+}
+
+.upper-nav-tiles {
+  border-radius: $radius;
+  width: calc(50% - 6px);
+  max-width: 312px;
+  height: 120px;
+  position: relative;
+  margin: 2px;
+  text-align: center;
+  font-size: ($base-size * 2.2);
+  font-family: $font-header;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  font-family: $font-header;
+
+  div {
+    padding: ($base-size * 3) 0 0 0;
+    margin: 0;
+  }
+  
+  &.order-online {
+    background: $color-light url('/images/home/pizza-1.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    margin-right: 3px;
+  }
+
+  &.book-a-table {
+    background: $color-light url('/images/home/pizza-2.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+    margin-left: 3px;
+  }  
+
+  a {
+    text-decoration: none;
+    color: $color-light;
+    display: block;
+    position: absolute;
+    width: 100%;
+    max-width: 300px;
+    height: 120px;
+    top: 0;
+    left: 0;
+  }
+}
+
+.opening-hours {
+  width: 100%;
+  background: $color-main;
+  border-radius: $radius;
+  border: solid 2px $color-light;
+  color: $color-light;
+  margin: 2px auto ($base-size * 8);
+  padding: ($base-size * 2.7) 0 ($base-size * 2.5) 0;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: $font-header;
+  font-size: ($base-size * 2.2);
+  line-height: 1.2;
+
+  div {
+    padding-top: 10px;
+    font-size: ($base-size * 1.2);  
+    font-weight: $font-light;
+    font-family: $font-text;
+  }
+}
+
+.section-middle {
+  background: #fff;
+}  
+
 
 /* Carousel */
 
-.carousel-inner, .carousel-item {
-  height: 220px;
-  background-color: #fff;
+.carousel {
+  background: #fff;
+  position: relative;
 }
 
-.carousel-item img {
-  height: 200px;
-  float: left;
-  padding: 10px;
+.carousel-indicators {
+  position: asbsolute;
+  top: 215px;
+  left: 6px;
 }
 
-.carousel-review {
-  margin-left: 250px;
-  color: #333;
-}
+.carousel-indicators li {
+  background-color: #333;
+  width: 10px;
+  height: 10px;
+  margin: 8px;
+  border-radius: 100%;
 
-/* Flex */
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -15px;
-  &.section-upper {
-    border: solid 2px #ff6b6b;
+  li.active {
+    background-color: #cdcdcd;
   }
-  &.section-middle {
-    border: solid 2px #aaa;
-    margin: 20px auto;
-  }  
 }
-.col { 
-  padding: 15px;
-  text-align: center;
+
+ol.carousel-control-prev, ol.carousel-control-next {
+  padding: 0;
 }
+
+.carousel-item {
+
+  div {
+    width: 100%;
+    background-color: $color-light;
+    height: 200px;
+  }
+
+  .review-image {
+    float: left;
+    width: 194px;
+    height: 194px;
+    margin: 3px;
+    padding: 0;
+    background: url('/images/home/pizza-3.jpg') $color-dark;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 150%;
+    border-radius: $radius;
+  }
+
+  .review-box {
+    height: 200px;
+    margin-left: 206px;
+    width: calc(100% - 206px);
+    padding: ($base-size * 2) ($base-size * 2.3);
+  }
+}
+
+.review-title {
+  text-align: left;
+  text-transform: uppercase;
+  font-family: $font-text;
+  font-size: ($base-size * 1.2);
+  line-height: 1.2;
+  font-weight: $font-bold;
+}
+
+.review-body {
+  text-align: left;
+  font-family: $font-text;
+  font-size: ($base-size * 1.2);
+  line-height: 1.5;
+}
+
+.review-signature {
+  text-align: left;
+  font-family: $font-text;
+  font-style: italic;
+  font-weight: $font-light;
+  font-size: ($base-size * 1.2);
+  line-height: 1.5;
+}
+
+.gallery-container {
+  padding: 0;
+  margin: 125px 0 10px 5px;
+}
+
+.gallery-container:hover .img {
+  opacity: 0.7;
+}
+
+.gallery-container .img:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.gallery-row {
+  display: flex;
+  flex-wrap: wrap; 
+  width: 605px;
+}
+
+.img { 
+  border-radius: $radius;
+  width: 194px;
+  height: 194px;
+  margin-right: 12px;
+  margin-bottom: 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 150%;  
+  }
+  
+.img-4 {
+  background: url('/images/home/pizza-4.jpg') $color-light;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 155%;
+}
+
+.img-5 {
+  background: url('/images/home/pizza-5.jpg') $color-light;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 150%;  
+}
+
+.img-6 {
+  background: url('/images/home/pizza-6.jpg') $color-light;
+  margin-right: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 150%;  
+}
+
+.img-7 {
+  background: url('/images/home/pizza-7.jpg') $color-light;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 150%;  
+}
+
+.img-8 {
+  background: url('/images/home/pizza-8.jpg') $color-light;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 120%;    
+}
+
+.img-9 {
+  background: url('/images/home/pizza-9.jpg') $color-light;
+  margin-right: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 150%;    
+}
+
+.footer {
+  margin-left: 10px;
+  a {
+    color: $color-main;
+    text-decoration: underline;
+
+    &:hover {
+      color: $color-main;
+      text-decoration: none;
+    }
+  }
+}
+
+/* Flex  */
+
 .col-1 {flex: 8.333%;}
+
 .col-2 {flex: 16.667%;}
+
 .col-3 {flex: 25%;}
-.col-4 {flex: 33.333%;}
+
+.col-4 {flex: 32%;}
+
 .col-5 {flex: 41.667%;}
+
 .col-6 {flex: 50%;}
+
 .col-7 {flex: 58.333%;}
+
 .col-8 {flex: 66.667%;}
+
 .col-9 {flex: 75%;}
+
 .col-10 {flex: 83.333%;}
+
 .col-11 {flex: 91.667%;}
+
 .col-12 {flex: 100%;}

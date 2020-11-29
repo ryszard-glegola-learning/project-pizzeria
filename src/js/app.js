@@ -32,6 +32,7 @@ const app = {
     for (let link of thisApp.allLinks){
       link.addEventListener('click',function(event){
         const clickedElement = this;
+        console.log('Link found:',link);
         event.preventDefault();
 
         /* get page id from href attribute and get rid of hash sign from it */
@@ -127,38 +128,6 @@ const app = {
 
     thisApp.booking = new Booking(bookingContainer);
 
-  },
-
-  includeHTMLfromFile: function(attributeName) {
-    /* Embeds HTML code from an HTML file inside element with attribute name, e.g. include-html-from-file - then the element would be <div w3-include-html="anyfilename.html"></div> 
-    // Based on https://www.w3schools.com/howto/tryit.asp?filename=tryhow_html_include_2
-    #Q2P Eventually this was not used due to issues with latency in loading the embedded doc
-    */
-    let z, i, containerForImportedHTML, file, xhttp;
-    /*loop through a collection of all HTML elements:*/
-    z = document.getElementsByTagName('*');
-    for (i = 0; i < z.length; i++){
-      containerForImportedHTML = z[i];
-      /*search for elements with a certain atrribute:*/
-      file = containerForImportedHTML.getAttribute(attributeName);
-      if (file) {
-        /*make an HTTP request using the attribute value as the file name:*/
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4) {
-            if (this.status == 200) {containerForImportedHTML.innerHTML = this.responseText;}
-            if (this.status == 404) {containerForImportedHTML.innerHTML = 'Page not found.';}
-            /*remove the attribute, and call this function once more:*/
-            containerForImportedHTML.removeAttribute(attributeName);
-            // includeHTMLfromFile(attributeName); - this was in original code but does not work here
-          }
-        };   
-        xhttp.open('GET', file, true);
-        xhttp.send();
-        /*exit the function:*/
-        return;
-      }
-    }
   },
 
   init: function(){
