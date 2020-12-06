@@ -43,7 +43,7 @@
     padding: ($base-size * 3) 0 0 0;
     margin: 0;
   }
-  
+
   &.order-online {
     background: $color-light url('/images/home/pizza-1.jpg');
     background-repeat: no-repeat;
@@ -71,6 +71,52 @@
     top: 0;
     left: 0;
   }
+}
+
+.tile-title {
+  height: 120px;
+  transition: all 0.5s;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.tile-title span {
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  transition: 0.5s;
+  height: 50px;
+  width: 250px;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  overflow: hidden;
+}
+
+.tile-title span:after {
+  content: 'Delicious food delivered to your door';
+  position: absolute;
+  left: 50%;
+  top: 85px;
+  right: 0;
+  bottom: 0;
+  transform: translateX(-50%) translateY(-50%);
+  text-transform: none;
+  font-size: 14px;
+  font-family: $font-text;
+  width: 300px;
+  opacity: 1;
+  transition: 0.5s;
+}
+
+.tile-title:hover span {
+  padding-bottom: 135px;
+  margin-top: 20px;
+}
+
+.tile-title:hover span:after {
+  opacity: 1;
+  right: 0;
 }
 
 .opening-hours {
